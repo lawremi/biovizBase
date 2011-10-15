@@ -1,0 +1,894 @@
+%\VignetteIndexEntry{An Introduction to biovizBase}
+%\VignetteDepends{}
+%\VignetteKeywords{visualization utilities}
+%\VignettePackage{biovizBase}
+\documentclass[10pt]{article}
+% \SweaveOpts{width = 5, height = 4.5}
+% \usepackage{times}
+\usepackage{hyperref}
+\usepackage{verbatim}
+
+\textwidth=6.5in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=-.1in
+\evensidemargin=-.1in
+\headheight=-.3in
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\newcommand{\software}[1]{\textsf{#1}}
+\newcommand{\R}{\software{R}}
+\newcommand{\IRanges}{\Rpackage{IRanges}}
+\newcommand{\biovizBase}{\Rpackage{biovizBase}}
+\newcommand{\ggbio}{\Rpackage{ggbio}}
+\newcommand{\visnab}{\Rpackage{visnab}}
+
+\title{An Introduction to \biovizBase{}}
+\author{Tengfei Yin, Michael Lawrence, Dianne Cook}
+\date{\today}
+
+\begin{document}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+<<options,echo=FALSE>>=
+options(width=72)
+@
+
+\section{Introduction}
+
+The \biovizBase{} package is designed to provide a set of utilities and
+color schemes serving as the basis for visualizing biological data,
+especially genomic data. Two other packages are currently built on this
+package, a static version of graphics is provided by the package \ggbio{},
+and an interactive version of graphics is provided by \visnab{}(Currently not released).
+
+In this vignette, we will introduce those color schemes and different
+utilities functions using simple examples and data sets. Utilities
+includes functions that precess the raw data, validate names,
+add attributes, and generate summaries such as fragment length,
+GC content, and mismatch information.
+
+\section{Color Schemes}
+The \biovizBase{} package aims to provide a set of default color schemes
+for biological data, based on the following principles.
+\begin{itemize}
+\item Make biological sense.  Data is displayed in a way that is
+  similar to observed results under the microscope. (Example: giemsa
+  stain results)
+\item Generate aesthetically pleasing colors based on well-defined
+  color sets like \emph{color brewer}
+  \footnote{\url{http://colorbrewer2.org/}}. Produce the appropriate
+  color for \emph{sequential, diverging, and qualitative} color
+  schemes.
+\item Accommodate colorblind vision by creating color pallets that
+  pass the color blind check on the \emph{Vischeck} website
+  \footnote{\url{http://www.vischeck.com/}} or use palette from
+  package \Rpackage{dichromat} or use color-blind safe color palette
+  checked by \emph{ColorBrewer}
+  website\footnote{\url{http://colorbrewer2.org/}}. There are three
+  types of colorblind checking strategy defined on these website.
+  \begin{description}
+     \item[Deuteranope] a form of red/green color deficit; 
+     \item[Protanope] another form of red/green color deficit;
+     \item[Tritanope] a blue/yellow deficit- very rare.
+  \end{description}
+\end{itemize}
+
+Our color scheme try to pass color-blind checking points to make sure
+all the users can tell the difference between groups of data
+displayed.  To make the implementation easy, we most time just use
+\Rpackage{dichromat} to check this, \Rpackage{dichromat} collapses
+red-green color distinctions to approximate the effect of the two
+common forms of red/green color blindness, protanopia and
+deuteranopia.  Or we could simply implement proved color-blind safe
+palette from \Rpackage{dichromat} or \Rpackage{RColorBrewer}.
+
+All color schemes have a general color generating function and a
+default color generating function.  They are automatically stored in
+\Rfunction{options} as default when loading the package. Other
+packages built on \biovizBase{} can use the default color scheme,
+ensuring consistent color themes across all static and interactive
+graphics.  Users may also change the default color in the
+\Rfunction{options} to personalize the global color scheme to fit
+their needs.
+
+
+@ 
+<<color-scheme-option>>=
+library(biovizBase)
+## library(scales)
+
+@ %def 
+
+\subsection{Colorblind Safe Palette}
+For graphics, it's important to make sure most people can tell the
+difference between colors on the plots, even for people with deficient
+or anomalous red-green vision. 
+
+We will add more and more colorblind safe palette gradually, now we
+only supported palettes from two packages, \Rpackage{dichromat} or
+\Rpackage{RColorBrewer}. However, \Rpackage{RColorBrewer} doesn't
+provide information about colorblind palette. So we need to check
+manually on \textit{ColorBrewer} website, and add this information
+with the palette information. For \Rpackage{dichromat} package, it
+doesn't have a palette information like \Rcode{brewer.pal.info}, which
+contains three different types, \textbf{qual, div, seq} representing
+quality, divergent and sequential respectively, and also missing max
+colors information, so we integrate all these information and generate
+three palette information.
+
+\begin{itemize}
+\item \Robject{brewer.pal.blind.info} provides only colorblind safe
+  palette subset.
+\item \Robject{dichromat.pal.blind.info} provides colorblind safe
+  palette with category information and max color allowed.
+\item \Robject{blind.pal.info} integrate first two, provides a general
+  palette information with extra column like pal.id, which used for
+  function \Rfunction{colorBlindSafePal} as index for arguments
+  \Rfunarg{palette} or maxcolors for allowed number of
+  color. \textit{pkg} providing information about which package it is
+  defined.
+\end{itemize}
+@ 
+<<color-pal-info>>=
+head(blind.pal.info)
+@ %def 
+
+Then we defined a color generating function
+\Rfunction{colorBlindSafePal}, this function reading in a palette
+argument which could be a index number or names for palette defined in
+\Robject{blind.pal.info}. And return a color generating function, a
+\Rfunarg{repeatable} argument will control, for number over max color
+numbers required, does it simply repeat it or just providing limited
+number of colors.
+
+@ 
+<<colorBlindPal>>=
+## with no arguments, return blind.pal.info
+head(colorBlindSafePal())
+## 
+mypalFun <- colorBlindSafePal("Set2")
+mypalFun(12, repeatable = FALSE) #only three
+mypalFun(11, repeatable = TRUE)  #repeat
+@ %def 
+
+To Collapses red-green color distinctions to approximate the effect of
+the two common forms of red- green color blindness, protanopia and
+deuteranopia, we can use function \Rfunction{dichromat} from package
+\Rpackage{dichromat}, this save us the time to 
+
+\begin{figure}[h!t!p!b]
+  \centering
+@ 
+<<color-dichromat, fig = TRUE>>=
+## for palette "Paried"
+mypalFun <- colorBlindSafePal(21)   
+par(mfrow = c(1, 3))
+showColor(mypalFun(4))
+library(dichromat)
+showColor(dichromat(mypalFun(4), "deutan"))
+showColor(dichromat(mypalFun(4), "protan"))
+@ %def   
+\caption{Checking colors with two common type of color blindness. The
+  first one is normal perception, second one for deuteranopia and last
+  one for protanopia. Since we are using selected color palettes in
+  this package, it should be fine with those types of blindness.}
+  \label{fig:dichromat}
+\end{figure}
+
+We only show this as an examples and won't compare all other color
+schemes in the following sections. Please notice that
+\begin{itemize}
+\item If the categorical data contains many levels like amino acid,
+  people cannot easily tell the difference anyway, we did the trick to
+  simply repeat the colors. This might be useful for many other cases
+  like grand linear view for chromosomes, since if the viewed orders of
+  chromosomes is fixed it's OK to use repeated colors since they are
+  not going to be layout as neighbors anyway.
+\item For schemes like cytobands, we try to follow the biological
+  sense, in this case, we don't really check the color blindness.
+\end{itemize}
+
+
+
+\subsection{Cytobands Color}
+Chemically staining the metaphase chromosomes results in a alternating
+dark and light banding pattern, which could provide information about
+abnormalities for chromosomes. Cytogenetic bands could also provide
+potential predictions of chromosomal structural characteristics, such
+as repeat structure content, CpG island density, gene density, and GC
+content.
+
+\biovizBase{} package provides utilities to get ideograms from the UCSC
+genome browser, as a wrapper around some functionality from
+\Rpackage{rtracklayer}. It gets the table for \emph{cytoBand} and stores
+the table for certain species as a \Robject{GRanges} object.
+
+We found a color setting scheme in package \Rpackage{geneplotter},
+and we implemented it in biovisBase.
+
+The function .cytobandColor will return a default color set. You could
+also get it from \Rfunction{options} after you load \biovizBase{}
+package.
+
+And we recommended function \Rfunction{getBioColor} to get the color
+vector you want, and names of the color is biological categorical
+data. This function hides interval color genenerators and also the
+complexity of getting color from options. You could specify whether
+you want to get colors by default or from options, in this way, you
+can temporarily edit colors in options and could change or all the
+graphics. This give graphics a uniform color scheme.
+
+@ 
+<<cytoband-color>>=
+getOption("biovizBase")$cytobandColor
+getBioColor("CYTOBAND")
+## differece source from default or options.
+opts <- getOption("biovizBase")
+opts$DNABasesNColor[1] <- "red"
+options(biovizBase = opts)
+## get from option(default)
+getBioColor("DNA_BASES_N")
+## get default fixed color
+getBioColor("DNA_BASES_N", source = "default")
+seqs <- c("A", "C", "T", "G", "G", "G", "C")
+## get colors for a sequence.
+getBioColor("DNA_BASES_N")[seqs]
+@ %def 
+
+You can check the color scheme by calling the
+\Rfunction{plotColorLegend} function.  or the \Rfunction{showColor}.
+
+
+\begin{figure}[h!t!p]
+  \centering
+@ 
+<<cytoband-color-legend, fig = TRUE>>=
+cols <- getBioColor("CYTOBAND")
+plotColorLegend(cols, title  = "cytoband")
+@ %def 
+  \caption{Legend for cytoband color}
+  \label{fig:cytoband}
+\end{figure}
+
+
+\subsection{Strand Color}
+In the \Robject{GRanges} object, we have \Robject{strand} which
+contains three levels, \textbf{+, -, *}. We are using a qualitative
+color set from \emph{Color Brewer} and check with \Rpackage{dichromat}
+as Figure\ref{fig:strand} shows, and we can see that this color set
+passes all three types of colorblind test. Therefore it should be a
+safe color set to use to color strand.
+
+\begin{figure}[h!t!p]
+  \centering
+  @ 
+<<strand-color, fig = TRUE>>=
+par(mfrow = c(1, 3))
+cols <- getBioColor("STRAND")
+showColor(cols)
+showColor(dichromat(cols, "deutan"))
+showColor(dichromat(cols, "protan"))
+@ %def 
+  \caption{Colorblind vision check for color of strand}
+  \label{fig:strand}
+\end{figure}
+
+\subsection{Nucleotides Color}
+We start with the five most used nucleotides, \textbf{A,T,C,G,N}, most
+genome browsers have their own color scheme to represent nucleotides, We
+chose our color scheme based on the principles introduced
+above. Since in genetics, \emph{GC-content} usually has special
+biological significance because GC pair is bound by three hydrogen
+bonds instead of two like AT pairs. So it has higher thermostability
+which could result in different significance, like higher annealing
+temperature in PCR. So we hope to choose warm colors for \textbf{G,C}
+and cold colors for \textbf{A,T}, and a color in between to represent
+\textbf{N}.  They are chosen from a diverging color set of \emph{color
+  brewer}. So we should be able to easily tell the GC enriched region.
+Figure \ref{fig:ne} shows the results from \Rpackage{dichromat},
+and we can see this color set passes all two types of the colorblind
+test. It should be a safe color set to use to color the five most used
+nucleotides.
+
+@ 
+<<base-color>>=
+getBioColor("DNA_BASES_N")
+
+@ %def 
+
+\begin{figure}[h!t!p]
+  \centering
+@ 
+<<ne-dichromat, fig = TRUE>>=
+par(mfrow = c(1, 3))
+cols <- getBioColor("DNA_BASES_N", "default")
+showColor(cols, "name")
+cols.deu <- dichromat(cols, "deutan")
+names(cols.deu) <- names(cols)
+cols.pro <- dichromat(cols, "protan")
+names(cols.pro) <- names(cols)
+showColor(cols.deu, "name")
+showColor(cols.pro, "name")
+@ %def 
+
+  \caption{Colorblind vision check for color of nucleotide}
+  \label{fig:ne}
+\end{figure}
+
+\subsection{Amino Acid Color and Other Schemes}
+We also include some other color schemes created based on existing
+object in package \Rpackage{Biostrings} and other customized color
+scheme.  Please notice that the object name is not the same as the
+name in the options.  On the left of \textbf{=}, it's name of object,
+most of them are defined in \Rpackage{Biostrings} and on the right,
+it's the name in options.
+
+\begin{verbatim}
+DNA_BASES_N = "DNABasesNColor"
+DNA_BASES = "DNABasesColor"
+DNA_ALPHABET = "DNAAlphabetColor"
+RNA_BASES_N = "RNABasesNColor"
+RNA_BASES = "RNABasesColor"
+RNA_ALPHABET = "RNAAlphabetColor"
+IUPAC_CODE_MAP = "IUPACCodeMapColor"
+AMINO_ACID_CODE = "AminoAcidCodeColor"                     
+AA_ALPHABET = "AAAlphabetColor"
+STRAND = "strandColor"
+CYTOBAND = "cytobandColor"
+\end{verbatim}
+
+They all could be retrieved by calling function
+\Rfunction{getBioColor}.
+
+
+\subsection{Future Schemes}
+Current color schemes are most generated based on known object in
+\R{}, which has a clear definition and classification. But we do have
+more interesting events or biological significance need to be color
+coded. Like most genome browser, they try to color code many events,
+for instance, color the insertion size which is larger/smaller than
+the estimated size; for paired RNA-seq data, we may color the paired
+reads mapped to a different chromosome. 
+
+We may include more color coded events in this package in next
+release.
+
+\section{Utilities}
+\biovizBase{} serves as a basis for the visualization of biological data,
+especially for genomic data. \Rpackage{IRanges} and
+\Rpackage{GenomicRanges} are the two most important infrastructure
+packages to manipulate genomic data. They already have lots of useful
+and fast utilities for processing genomic data. Some other package
+such as \Rpackage{rtracklayer}, \Rpackage{Rsamtools},
+\Rpackage{ShortRead}, \Rpackage{GenomicFeatures} provide common I/O
+for certain types of biological data and utilities for processing
+those raw data. Most of our utilities to be introduced in this section
+only manipulate the data in a simple and different way to get them ready
+for visualization. Most cases are only useful for visualization work,
+like adding brush color attributes to a \Robject{GRanges} object. Some
+of the other utilities are responsible for summarizing certain types of
+raw data, getting it ready to be visualized. Some of those utilities may be moved to
+a separate package later.
+
+\subsection{GRanges Related Manipulation}
+\biovizBase{} mainly focuses on visualizing the genomic data, so we
+have some utilities for manipulating \Robject{GRanges} object. We are
+going to introduce these functions in the flow wing sub-sections.
+Overall, we hope to reduce people's work through these common
+utilities.
+
+% \subsubsection{Chromosome Name Manipulation}
+% We don't have required canonical chromosome name for
+% \Robject{seqnames} in \Robject{GRanges}. Most times, we have chromosome
+% name with prefix \textbf{chr} in lower case. However, we could come
+% across all kinds of other names with prefix \textbf{Chr}, or
+% without any prefix at all. This complicates our integration of data
+% since we need to check with \Robject{seqnames} before we are able to aggregate
+% them or before we can visualize them. A consistent name scheme is very
+% important in most graphic packages like \Rpackage{ggplot2}.  For
+% example, you are going to fail if you try to overlay two data in
+% the same plot which follows a different name schema. Sometimes we
+% also need to layout our graphics for genomes in a nice ordered way,
+% which requires some sorting/ordering function to re-order our
+% \Robject{GRanges} object.
+
+
+% Function \Rfunction{sortChr} works for \Robject{GenomicRanges}, or
+% characters or factor, sort it based on seqnames.  The default is first
+% showing numeric seqnames in increasing order, then showing mixed
+% letters names in alphabetical. Function \Rfunction{orderChr} return
+% an index instead of a \Robject{GenomicRanges} object. The user could also
+% provide a model which is a vector of seqnames to sort by.
+% @ 
+% <<sort-chr>>=
+% sort(gr)
+% head(sortChr(gr, prefix = "chr"))
+% head(orderChr(gr, prefix = "chr"))
+% head(sortChr(gr, model = c("chrX", "chr3", "chr1", "chrY", "chr2")))
+% sortChr(c("chrX", "chr3", "chr1", "chrY", "chr2"))
+% orderChr(c("chrX", "chr3", "chr1", "chrY", "chr2"))
+% sortChr(factor(c("chrX", "chr3", "chr1", "chrY", "chr2")))
+% orderChr(factor(c("chrX", "chr3", "chr1", "chrY", "chr2")))
+% @ %def 
+
+
+\subsubsection{Adding Disjoint Levels}
+@ 
+<<sample-gr>>=
+library(GenomicRanges)
+set.seed(1)
+N <- 500
+gr <- GRanges(seqnames =
+              sample(c("chr1", "chr2", "chr3", "chrX", "chrY"),
+                     size = N, replace = TRUE),
+              IRanges(
+                      start = sample(1:300, size = N, replace = TRUE),
+                      width = sample(70:75, size = N,replace = TRUE)),
+              strand = sample(c("+", "-", "*"), size = N,
+                replace = TRUE),
+              value = rnorm(N, 10, 3), score = rnorm(N, 100, 30),
+              group = sample(c("Normal", "Tumor"),
+                size = N, replace = TRUE),
+              pair = sample(letters, size = N,
+                replace = TRUE))
+@ %def 
+
+This is a tricky question.  For example, for pair-end RNA-seq data, we
+may want to put the reads with the same \emph{qname} on the same
+level, with nothing falling in between. For better visualization of
+the data, we may hope that adding invisible extensions to the reads
+will prevent closely neighbored reads from showing up on the same
+level.
+
+\Rfunction{addSteppings} function takes a
+\Robject{GenomicRanges} object and will add an extra column
+called \textbf{.levels} to the object.  This function is essentially a
+wrapper around a function \Rfunction{disjointBins} but allows a more
+flexible way to assign levels to each entry. For example, if the
+arguments \Rfunarg{group.name} is specified to one of the column in
+elementMetadata, the function will make sure
+\begin{itemize}
+\item Grouped intervals are in the same levels( if they are not
+  overlapped each other).
+\item No entry is following between the grouped intervals.
+\item If extend.size is provided, it buffers the intervals and then
+  computes the disjoint levels, thus ensuring that two closely positioned
+  intervals will be assigned to different levels, a good practice for
+  visualization.
+\end{itemize}
+
+For now, this function is only useful for visualization purposes.
+
+@ 
+<<addSteppings-gr>>=
+head(addSteppings(gr))
+head(addSteppings(gr, group.name = "pair"))
+gr.close <- GRanges(c("chr1", "chr1"), IRanges(c(10, 20), width = 9))
+addSteppings(gr.close)
+addSteppings(gr.close, extend.size = 5)
+@ %def 
+
+\subsection{Shrink the Gaps}
+Sometime, in a gene centric view, we hope to truncate or shrink the
+gaps to better visualize the short reads or annotation data. It's
+\textbf{DANGEROUS} to shrink the gaps, since it only make sense in
+visualization. And even in the visualization the x-scale will be
+discontinued, and labels became somehow meaningless. \textbf{Make
+  sure} you are not using the shrunk version of data when performing
+the down stream analysis.
+
+This is a tricky question too, we hope to provide a flexible way to
+shrink the gaps.  When we have multiple tracks, users would be 
+responsible to shrink all the tracks based on the common gaps,
+otherwise there will be mis-aligned tracks.
+
+\Rfunction{maxGap} computes a suitable estimated gap based on passed
+\Robject{GenomicRanges}
+@ 
+<<maxGap>>=
+gr.temp <- GRanges("chr1", IRanges(start = c(100, 250),
+                                 end = c(200, 300)))
+maxGap(gaps(gr.temp, start = min(start(gr.temp))))
+maxGap(gaps(gr.temp, start = min(start(gr.temp))), ratio = 0.5)
+@ %def 
+
+\Rfunction{shrinkageFun} function will read in a
+\Robject{GenomicRanges} object which represents the gaps, and returns
+a function which alters a different \Robject{GenomicRanges} object, to
+shrink that object based on previously specified gaps shrinking
+information.  You could use this function to treat multiple
+tracks(e.g. \Robject{GRanges}) to make sure they are shrunk based on
+the common gaps and the same ratio.
+
+Be careful in the following situations.
+\begin{itemize}
+\item When use the same shrinkage function to shrink multiple tracks,
+  make sure the gaps passed to \Rfunction{shrinkageFun} function is
+  the common gaps across all tracks, otherwise, it doesn't make sense
+  to cut a overlapped gap within one of the tracks.
+\item The default max gap is not 0, just for visualization purpose.  If
+  for estimation purpose, you might want to make sure you cut all
+  the gaps.
+\end{itemize}
+
+And notice, after shrinking, the x-axis labes only provide approximate
+position as shown in Figure \ref{fig:shrink-single} and
+\ref{fig:shrink-two}, because it's clipped. It's just for
+visualization purpose.
+
+\begin{figure}[h!t!p!b]
+  \centering
+@ 
+<<shrink-single, fig = TRUE>>=
+gr1 <- GRanges("chr1", IRanges(start = c(100, 300, 600),
+                               end = c(200, 400, 800)))
+shrink.fun1 <- shrinkageFun(gaps(gr1), max.gap = maxGap(gaps(gr1), 0.15))
+shrink.fun2 <- shrinkageFun(gaps(gr1), max.gap = 0)
+library(ggbio)
+p1 <- qplot(gr1)
+p2 <- qplot(shrink.fun1(gr1))
+p3 <- qplot(shrink.fun2(gr1))
+tracks(p1, p2, p3)
+@ %def   
+\caption{Shrink single GRanges. The first track is original GRanges,
+  the second one use a ratio which shrink the GRanges a little bit, and
+  default is to remove all gaps shown as the third track }
+  \label{fig:shrink-single}
+\end{figure}
+
+\begin{figure}[h!t!p!b]
+  \centering
+@ 
+<<shrinkageFun, fig = TRUE>>=
+gr2 <- GRanges("chr1", IRanges(start = c(100, 350, 550),
+                               end = c(220, 500, 900)))
+gaps.gr <- intersect(gaps(gr1, start = min(start(gr1))),
+                     gaps(gr2, start = min(start(gr2))))
+shrink.fun <- shrinkageFun(gaps.gr, max.gap = maxGap(gaps.gr))
+p1 <- qplot(gr1)
+p2 <- qplot(gr2)
+p3 <- qplot(shrink.fun(gr1))
+p4 <- qplot(shrink.fun(gr2))
+tracks(p1, p2, p3, p4)
+@ %def   
+\caption{shrinkageFun demonstration for multiple GRanges, the top two
+  tracks are the original tracks, please note how we clipped common
+  gaps for those two tracks and shown as bottom two tracks.}
+  \label{fig:shrink-two}
+\end{figure}
+
+
+\subsection{GC content}
+As mentioned before, GC content is an interesting variable which may
+be related to various biological questions. So we need a way to
+compute GC content in a certain region of a reference genome.
+
+\Rfunction{GCcontent} function is a wrapper around \Rfunction{getSeq}
+function in \Rpackage{BSgenome} package and
+\Rfunction{letterFrequency} in \Rpackage{Biostrings} package. It reads
+a \Robject{BSgenome} object and returns count/probability for
+\textbf{GC} content in specified region.
+
+@ 
+<<gc-content, eval = FALSE>>=
+library(BSgenome.Hsapiens.UCSC.hg19)
+GCcontent(Hsapiens, GRanges("chr1", IRanges(1e6, 1e6 + 1000)))
+GCcontent(Hsapiens, GRanges("chr1", IRanges(1e6, 1e6 + 1000)), view.width = 300)
+@ %def 
+
+
+\subsection{Mismatch Summary}
+Compared to short-read alignment visualization, it's more useful to
+just show the summary of nucleotides of short reads per base and
+compare with the reference genome.  We need a way to show the
+mismatched nucleotides, coverage at each position and proportion of
+mismatched nucleotides, and use the default color to indicate the type
+of nucleotide.
+
+\Rfunction{pileupAsGRanges} function summarizes reads from bam files
+for nucleotides on single base units in a given region, which allows
+the downstream mismatch summary analysis. It's a wrapper around
+\Rfunction{applyPileup} function in Rsamtools package and more
+detailed control could be found under manual of PileupParam function
+in Rsamtools. \Rfunction{pileupAsGRanges} function returns a GRanges
+object which includes a summary of nucleotides, depth, and bam file
+path. This object could be read directly into the
+\Rfunction{pileupGRangesAsVariantTable} function for a mismatch
+summary.
+
+This function returns a \Robject{GRanges} object with extra
+\Robject{elementMetadata}, counts for \textbf{A,C,T,G,N} and
+\textbf{depth} for coverage.  \textbf{bam} indicates the bam file
+path. Each row is single base unit.
+
+\Rfunction{pileupGRangesAsVariantTable} performs comparisons to the
+reference genome(a \Robject{BSgenome} object) and computes the
+mismatch summary for a certain region of reads.  User need to make
+sure to pass the right reference genome to this function to get the
+right summary. This function drops the positions that have no reads
+and only keeps the regions with coverage in the summary. The result
+could be used to show stacked barchart for the mismatch summary.
+
+This function returns a \Robject{GRanges} with the following
+elementMetadata information. 
+
+\begin{description}
+\item[ref] Reference base.
+\item[read] Sequenced read at that position. Each type of
+  \textbf{A,C,T,G,N} summarize counts at one position, if no counts
+  detected, will not show it.
+\item[count] Count for each nucleotide.
+\item[depth] Coverage at that position.
+\item[match] A logical value, indicate it's matched or not.
+\item[bam] Indicate bam file path.
+\end{description}
+
+Sample raw data is from SRA(Short Read Archive), Accession: SRR027894
+and subset the gene at chr10:6118023-6137427, which within gene
+RBM17. contains junction reads.
+
+@ 
+<<PileupAsGRanges, eval = FALSE>>=
+library(Rsamtools)
+data(genesymbol)
+library(BSgenome.Hsapiens.UCSC.hg19)    
+bamfile <- system.file("extdata", "SRR027894subRBM17.bam", package="biovizBase")
+test <- pileupAsGRanges(bamfile, region = genesymbol["RBM17"])
+test.match <- pileupGRangesAsVariantTable(test, Hsapiens)
+head(test[,-7])
+head(test.match[,-5])
+@ %def 
+
+% \subsection{Fragment Length Estimation}
+% \emph{Fragment length} could be defined in different
+% ways. Here, the \Rfunction{getFragLength} function simply uses the shrinkage
+% function (introduced in previous section) to cut all gaps existing in the
+% provided model and recompute the length for \Robject{GappedAlignment}
+% object instead of using its width directly. 
+
+% @ 
+% <<getFragLength, eval = FALSE>>=
+% bamfile <- system.file("extdata", "SRR027894subRBM17.bam", package="biovizBase")
+% library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+% txdb <- Hsapiens_UCSC_hg19_knownGene_TxDb
+% exons <- exonsBy(txdb, by = "tx")
+% model <- subsetByOverlaps(exons, genesymbol["RBM17"])
+% ## model <- exonsByOverlaps(txdb, genesymbol[16910])
+% frg <- getFragLength(file, model)
+% @ %def 
+
+% \subsection{Splicing Summary}
+% One of the information we could find from the RNA-seq data is the
+% abundance of different alternative splicing models. There are two ways
+% to visualizing the slicing summary, one is summary for full model,
+% which could be represented as \Robject{GRangesList}, for instance, a
+% \Robject{GRangesList} grouped by transcirpt id, and each element is
+% \Robject{GRanges} object contains all the exons. Another one is single
+% model which could be represented as \Robject{GRanges}, for instance, a
+% \Robject{GRanges} object which just contains all the exons not grouped
+% by transcript. So we need a way to compute counts support each model
+% in the full model or splicing junction in the single model.
+
+% There are different ways to summarize abundance based on RNA-seq, I
+% started with a simple approach which just counting reads acrossing the
+% junction. The algorithm will first filter out reads which are not
+% junction reads from the raw data, then mapping junction reads to
+% models.
+% \begin{itemize}
+% \item For full model, if one junction reads mapped to one model which
+%   covers two consecutive exons, then this model plus one for
+%   supporting evidence. When \Rfunarg{weighted} turned on to TRUE, if a
+%   junction reads mapped to multiple model, we will simply plus 1/cases
+%   for all the supported model. 
+% \item For single model, we just summarize the splicing of all junction
+%   reads for all the exons. Using notion like \textbf{1-2, 3-4} to
+%   indicate the junction, here the number means the index of given
+%   model, we assume each row in the model is one exon. When
+%   \Rfunarg{model\_id} set to certain column, for example,
+%   'exon\_id'. Then we use exon\_id for our notion of our summary.
+% \end{itemize}
+
+% The \Rfunction{spliceSummary} is a S4 method which dispatch on the first
+% arguments, and will return a vector which is total counts for each
+% model or exon junctions. And names of the vector is transcript name or
+% notion like \textbf{1-3} to indicate the isoform.
+
+% \textbf{Note:} Currently we don't support new model generation, which
+% means if junction reads cannot mapped to any known model or exons
+% which passed to argument \Rfunarg{model} of \Rfunction{spliceSummary}
+% function, we don't give summary about these reads. But in the future,
+% we would support more flexible summary for this case.
+
+% @ 
+% <<spliceSummary, eval = FALSE>>=
+% splice.sum1 <- spliceSummary(bamfile, model)
+% splice.sum2 <- spliceSummary(bamfile, model, weighted = FALSE)
+% exonsall <- exons(txdb)
+% model.single <- subsetByOverlaps(exonsall, genesymbol["RBM17"])
+% splice.sum3 <- spliceSummary(bamfile, model.single)
+% splice.sum4 <- spliceSummary(bamfile, model.single, model_id = "exon_id")
+% @ %def 
+% \begin{verbatim}
+% > splice.sum1
+% 38191 38192 38193 
+%    57    57     0 
+% > splice.sum2
+% 38191 38192 38193 
+%   114   114     0 
+% > splice.sum3
+% 1-2 1-3 
+%   1 114 
+% > splice.sum4
+% 140875-140876 140875-140887 
+%           114             1 
+% \end{verbatim}
+
+% \subsection{Aggregating from Raw Data}
+% Those utilities used inside this package internally, useful
+% but not exported to users until later, may be dropped or
+% changed to more general existing method defined in another package, like
+% package \Rpackage{stream}.
+
+\subsection{Get an Ideogram}
+\Rfunction{getIdeogram} function is a wrapper of some functionality
+from \Rpackage{rtracklayer} to get certain table like cytoBand.  A
+full table schema can be found
+\href{http://genome.ucsc.edu/cgi-bin/hgTables}{here} at \emph{UCSC
+  genome browser}. Please click \emph{describe table schema}.
+
+This function requires a network connection and will parse the data on
+the fly.  The first argument of \Rfunction{getIdeogram} is
+\Rfunarg{species}.  If \Rcode{missing}, the function will give you a
+choice hint, so you will not have to remember the name for the
+database you want, or you can simply get the database name for a
+different genome using the \Rfunction{ucscGenomes} function in
+\Rpackage{Rtracklayer}. The second argument \Rfunarg{subchr} is used
+to subset the result by chromosome name. The third argument cytoband
+controls if you want to get the gieStain information/band information
+or not, which is useful for the visualization of the whole genome or
+single chromosome.  You can see some examples in \Rpackage{ggbio}.
+
+@ 
+<<ucsc-genome, eval = FALSE>>=
+library(rtracklayer)
+hg19IdeogramCyto <- getIdeogram("hg19", cytoband = TRUE)
+hg19Ideogram <- getIdeogram("hg19", cytoband = FALSE)
+unknowIdeogram <- getIdeogram()
+@ %def 
+\begin{verbatim}
+Please specify genome 
+
+ 1: hg19      2: hg18      3: hg17      4: hg16      5: felCat4
+ 6: felCat3   7: galGal3   8: galGal2   9: panTro3  10: panTro2
+11: panTro1  12: bosTau4  13: bosTau3  14: bosTau2  15: canFam2
+16: canFam1  17: loxAfr3  18: fr2      19: fr1      20: cavPor3
+21: equCab2  22: equCab1  23: petMar1  24: anoCar2  25: anoCar1
+26: calJac3  27: calJac1  28: oryLat2  29: mm9      30: mm8    
+31: mm7      32: monDom5  33: monDom4  34: monDom1  35: ponAbe2
+36: ailMel1  37: susScr2  38: ornAna1  39: oryCun2  40: rn4    
+41: rn3      42: rheMac2  43: oviAri1  44: gasAcu1  45: tetNig2
+46: tetNig1  47: xenTro2  48: xenTro1  49: taeGut1  50: danRer7
+51: danRer6  52: danRer5  53: danRer4  54: danRer3  55: ci2    
+56: ci1      57: braFlo1  58: strPur2  59: strPur1  60: apiMel2
+61: apiMel1  62: anoGam1  63: droAna2  64: droAna1  65: droEre1
+66: droGri1  67: dm3      68: dm2      69: dm1      70: droMoj2
+71: droMoj1  72: droPer1  73: dp3      74: dp2      75: droSec1
+76: droSim1  77: droVir2  78: droVir1  79: droYak2  80: droYak1
+81: caePb2   82: caePb1   83: cb3      84: cb1      85: ce6    
+86: ce4      87: ce2      88: caeJap1  89: caeRem3  90: caeRem2
+91: priPac1  92: aplCal1  93: sacCer2  94: sacCer1  
+
+Selection: 
+\end{verbatim}
+
+Here is the example on how to get the genome names.
+@ 
+<<ucsc-genome-db, eval = FALSE>>=
+head(ucscGenomes()$db)
+@ %def 
+\begin{verbatim}
+[1] hg19    hg18    hg17    hg16    felCat4 felCat3
+122 Levels: ailMel1 anoCar1 anoCar2 anoGam1 apiMel1 apiMel2 ... 
+\end{verbatim}
+@ 
+
+We put the most used hg19 ideogram as our default data set, so you can
+simply load it and see what they look like. They are all returned by
+the \Rfunction{getIdeogram} function. The one with cytoband
+information has two special columns.
+\begin{description}
+\item[name] Name of cytogenetic band
+\item[gieStain] Giemsa stain results
+\end{description}
+
+
+<<default-data>>=
+data(hg19IdeogramCyto)
+head(hg19IdeogramCyto)
+data(hg19Ideogram)
+head(hg19Ideogram)
+@ %def 
+
+There are two simple functions to test if the ideogram is valid or
+not.  \Rfunction{isIdeogram} simply tests if the result came from the
+\Rfunction{getIdeogram} function, making sure it's a
+\Robject{GenomicRanges} object with an extra
+column. \Rfunction{isSimpleIdeogram} only tests if it's
+\Robject{GenomicRanges} and does not require cytoband information. But
+it double checks to make sure there is only one entry per
+chromosome. This is useful to show stacked overview for
+genomes. Please check some examples in \Rpackage{ggbio} to draw
+stacked overview and single chromosome.
+
+@ 
+<<check-ideogram>>=
+isIdeogram(hg19IdeogramCyto)
+isIdeogram(hg19Ideogram)
+isSimpleIdeogram(hg19IdeogramCyto)
+isSimpleIdeogram(hg19Ideogram)
+@ %def 
+
+\subsection{Other Utilities and Data Sets} 
+We are not going to introduce other utilities in this vignette, please
+refer to the manual for more details, we have other function to
+transform a \Robject{GRanges} to a special format only for graphic
+purpose, such as function \Rfunction{transformGRangesForEvenSpace} and
+\Rfunction{transformGRangesToDfWithTicks} could be used for grand
+linear view or linked view as introduced in package \Rpackage{ggbio}.
+
+We have introduced data sets like \Robject{hg19IdeogramCyto} and
+\Robject{hg19Ideogram} in the previous sections. We also have a data
+set called \Robject{genesymbol}, which is extracted from human
+annotation package and stored as \Robject{GRanges} object, with extra
+columns \emph{symbol} and \emph{ensembl\_id}. For fast mapping, we use
+\emph{symbol} as row names too.
+
+This could be used for convenient overlapped subset with other
+annotation, and has potential use in a auto-complement drop list for
+gene search bar like most gene browsers have.
+
+@ 
+<<genesymbol>>=
+data(genesymbol)
+head(genesymbol)
+genesymbol["RBM17"]
+
+@ %def 
+\section{Bugs Report and Features Request}
+
+Latest code are available on github
+\url{https://github.com/tengfei/biovizBase}
+
+Please file bug/request on issue page, this is preferred way. or
+email me at yintengfei <at> gmail dot com.
+
+It's a new package and under active development.
+
+Thanks in advance for any feedback.
+\section{Acknowledgement}
+I wish to thank all those who helped me. Without them, I could not
+have started this project.
+\begin{description}
+\item[Genentech]{Sponsorship and valuable feed back and help for this
+    project and my other project.}
+  \item[Jennifer Chang]{Feedback on this package}
+\end{description}
+
+
+\section{Session Information}
+@ 
+<<R-session>>=
+sessionInfo()
+@ %def 
+\end{document}

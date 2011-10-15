@@ -1,0 +1,23 @@
+getBioColor("DNA_BASES_N")
+getBioColor("DNA_BASES")
+getBioColor("DNA_ALPHABET")
+getBioColor("RNA_BASES_N")
+getBioColor("RNA_BASES")
+getBioColor("RNA_ALPHABET")
+getBioColor("IUPAC_CODE_MAP")
+getBioColor("AA_ALPHABET")
+getBioColor("STRAND")
+getBioColor("CYTOBAND")
+
+getBioColor("DNA_BASES_N", source = "default")
+getBioColor("DNA_BASES", source = "default")
+getBioColor("DNA_ALPHABET", source = "default")
+getBioColor("RNA_BASES_N", source = "default")
+getBioColor("RNA_BASES", source = "default")
+getBioColor("RNA_ALPHABET", source = "default")
+getBioColor("IUPAC_CODE_MAP", source = "default")
+getBioColor("AA_ALPHABET", source = "default")
+getBioColor("STRAND", source = "default")
+getBioColor("CYTOBAND", source = "default")
+
+

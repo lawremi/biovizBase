@@ -1,0 +1,81 @@
+## ======================================================================
+## Import
+## ======================================================================
+## RColorBrewer
+import(RColorBrewer)
+import(dichromat)
+## scales
+import(scales)
+## IRanges
+importFrom(IRanges, IRanges,  disjointBins,
+           matchMatrix, findOverlaps, subsetByOverlaps,
+           "elementMetadata", "elementMetadata<-",
+           start, width, end,  resize, 
+           "values", "values<-",
+           ranges, "ranges<-", 
+           isTRUEorFALSE, coverage, slice,
+           elementLengths,
+           cbind, rbind,
+           ## viewWhichMins, viewWhichMaxs,
+           ## viewMins, viewMaxs, viewSums, viewMeans,
+           ## runValue, runLength,
+           reduce, punion, pgap, gaps)
+
+importMethodsFrom(IRanges,  split, sort,
+                  unlist,setdiff,
+                  Reduce,
+                  as.data.frame,
+                  length,
+                  "[","[<-","[[", "[[<-","$",
+                  "%in%", show, 
+                  lapply, sapply)
+
+importClassesFrom(IRanges)
+
+## ## GenomicRanges
+importFrom(GenomicRanges, "seqnames<-","strand<-", "seqlevels<-",
+           seqinfo, "seqinfo<-", 
+           GRanges, GRangesList, Seqinfo, seqlengths, "seqlengths<-")
+importMethodsFrom(GenomicRanges, ranges, "ranges<-",
+                  start, end, width, "start<-", "end<-", "width<-",
+                  seqnames, strand, show, 
+                   "elementMetadata<-", elementMetadata,
+                  keepSeqlevels, renameSeqlevels,
+                  as.data.frame)
+
+importClassesFrom(GenomicRanges, GRanges)
+
+## Biostrings
+importFrom(Biostrings, AA_ALPHABET,
+           DNA_ALPHABET,
+           DNA_BASES,
+           IUPAC_CODE_MAP,
+           RNA_ALPHABET,
+           AMINO_ACID_CODE,           
+           RNA_BASES)
+## ======================================================================
+##    export
+## ======================================================================
+## color
+export(getBioColor,
+       plotColorLegend,
+       transformGRangesForEvenSpace,
+       transformGRangesToDfWithTicks,
+       genBrewerBlindPalInfo,
+       genDichromatPalInfo,
+       genBlindPalInfo,
+       colorBlindSafePal,
+       blind.pal.info,
+       brewer.pal.blind.info,
+       dichromat.pal.blind.info)
+
+
+## utils
+exportMethods(addSteppings, 
+              ## sortChr, orderChr,
+              shrinkageFun, maxGap)
+              ## getFragLength
+export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
+       pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,
+       showColor, isJunctionRead, isMatchedWithModel)
+## exportPattern("^[^\\.]")

@@ -1,0 +1,20 @@
+Package: biovizBase
+Version: 0.9.1
+Title: Basic graphic utilities for visualization of genomic data.
+Description: The biovizBase package is designed to provide a set of utilities, color schemes and conventions for genomic data. It serves as the base for various high-level packages for biological data visualization. This saves development effort and encourages consistency.
+Author: Tengfei Yin, Michael Lawrence, Dianne Cook
+Maintainer: Tengfei Yin <yintengfei@gmail.com>
+Depends: R (>= 2.10), methods
+Imports: methods, scales, RColorBrewer, dichromat, IRanges,
+        GenomicRanges, Biostrings
+Suggests: BSgenome.Hsapiens.UCSC.hg19,
+        TxDb.Hsapiens.UCSC.hg19.knownGene, BSgenome,
+        rtracklayer,GenomicFeatures, Rsamtools
+biocViews: Infrastructure, Visualization, Bioinformatics, Preprocessing
+License: Artistic-2.0
+LazyLoad: Yes
+Collate: utils.R color.R AllGenerics.R fetch-method.R
+        addSteppings-method.R getFragLength-method.R
+        shrinkageFun-method.R maxGap-method.R spliceSummary-method.R
+        ideogram.R pileup.R zzz.R biovizBase-package.R
+Packaged: 2011-10-14 21:29:08 UTC; tengfei
