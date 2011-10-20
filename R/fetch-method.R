@@ -113,6 +113,7 @@ fetch <- function(obj, which, ..., gene.id,
     message("Done")
   }
   if(is(obj, "GappedAlignments")){
+    require(Rsamtools)
     ## require(Rsamtools)
     if(!missing(which))
       obj <- subsetByOverlaps(obj, which)

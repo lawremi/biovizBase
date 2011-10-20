@@ -158,7 +158,7 @@ number of colors.
 head(colorBlindSafePal())
 ## 
 mypalFun <- colorBlindSafePal("Set2")
-mypalFun(12, repeatable = FALSE) #only three
+## mypalFun(12, repeatable = FALSE) #only three
 mypalFun(11, repeatable = TRUE)  #repeat
 @ %def 
 
@@ -526,42 +526,39 @@ And notice, after shrinking, the x-axis labes only provide approximate
 position as shown in Figure \ref{fig:shrink-single} and
 \ref{fig:shrink-two}, because it's clipped. It's just for
 visualization purpose.
-
-\begin{figure}[h!t!p!b]
-  \centering
 @ 
-<<shrink-single, fig = TRUE>>=
+<<shrink-single>>=
 gr1 <- GRanges("chr1", IRanges(start = c(100, 300, 600),
                                end = c(200, 400, 800)))
 shrink.fun1 <- shrinkageFun(gaps(gr1), max.gap = maxGap(gaps(gr1), 0.15))
 shrink.fun2 <- shrinkageFun(gaps(gr1), max.gap = 0)
-library(ggbio)
-p1 <- qplot(gr1)
-p2 <- qplot(shrink.fun1(gr1))
-p3 <- qplot(shrink.fun2(gr1))
-tracks(p1, p2, p3)
+head(shrink.fun1(gr1))
+head(shrink.fun2(gr1))
 @ %def   
+\begin{figure}[h!t!p!b]
+  \centering
+  \includegraphics[width = 0.8\textwidth]{intro-shrink-single.pdf}
 \caption{Shrink single GRanges. The first track is original GRanges,
   the second one use a ratio which shrink the GRanges a little bit, and
   default is to remove all gaps shown as the third track }
   \label{fig:shrink-single}
 \end{figure}
 
-\begin{figure}[h!t!p!b]
-  \centering
+
 @ 
-<<shrinkageFun, fig = TRUE>>=
+<<shrinkageFun>>=
 gr2 <- GRanges("chr1", IRanges(start = c(100, 350, 550),
                                end = c(220, 500, 900)))
 gaps.gr <- intersect(gaps(gr1, start = min(start(gr1))),
                      gaps(gr2, start = min(start(gr2))))
 shrink.fun <- shrinkageFun(gaps.gr, max.gap = maxGap(gaps.gr))
-p1 <- qplot(gr1)
-p2 <- qplot(gr2)
-p3 <- qplot(shrink.fun(gr1))
-p4 <- qplot(shrink.fun(gr2))
-tracks(p1, p2, p3, p4)
+head(shrink.fun(gr1))
+head(shrink.fun(gr2))
 @ %def   
+
+\begin{figure}[h!t!p!b]
+  \centering
+\includegraphics[width = 0.8\textwidth]{intro-shrinkageFun.pdf}
 \caption{shrinkageFun demonstration for multiple GRanges, the top two
   tracks are the original tracks, please note how we clipped common
   gaps for those two tracks and shown as bottom two tracks.}
