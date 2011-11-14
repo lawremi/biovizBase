@@ -6,6 +6,8 @@ import(RColorBrewer)
 import(dichromat)
 ## scales
 import(scales)
+## BiocGenerics
+importFrom(BiocGenerics, cbind, rbind)
 ## IRanges
 importFrom(IRanges, IRanges,  disjointBins,
            matchMatrix, findOverlaps, subsetByOverlaps,
@@ -15,7 +17,6 @@ importFrom(IRanges, IRanges,  disjointBins,
            ranges, "ranges<-", 
            isTRUEorFALSE, coverage, slice,
            elementLengths,
-           cbind, rbind,
            ## viewWhichMins, viewWhichMaxs,
            ## viewMins, viewMaxs, viewSums, viewMeans,
            ## runValue, runLength,
