@@ -101,7 +101,7 @@ fetch <- function(obj, which, ..., gene.id,
       values(cds.s)$type <- factor("cds")
       exon.s <- reduce(res[values(res)$type == "exon"])
       values(exon.s)$type <- factor("exon")
-      utr.s <- setdiff(range(exon.s), range(cds.s))
+      utr.s <- setdiff(exon.s, cds.s)
       values(utr.s)$type <- factor("utr")
       gap.s <- gaps(cds.s, start = min(start(cds.s)),
                     end = max(end(cds.s)))
