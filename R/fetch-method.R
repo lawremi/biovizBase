@@ -28,7 +28,6 @@ fetch <- function(obj, which, ..., gene.id,
   if(is(obj,"BamFile"))
     type <- "gapped.pair"
   }
-  
   if(is(obj, "TranscriptDb")){
     if(!(type %in% .txdb.type))
       stop("type for TranscriptDb must be ", .txdb.type)
@@ -74,23 +73,22 @@ fetch <- function(obj, which, ..., gene.id,
         ## need to check cds
         cds.cur <- cdss[[id]]
         seqs <- unique(as.character(seqnames(exons.cur)))
-        exon_union <- range(exons.cur)
+        exon_union <- reduce(exons.cur)
         introns.cur <- GRanges(seqs,IRanges(gaps(ranges(exons.cur))))
         values(introns.cur) <- data.frame(tx_id = id, type = "intron")
         if(!is.null(cds.cur)){
           values(cds.cur) <- data.frame(tx_id = id, type = "cds")
-          gaps.cur <- GRanges(seqs,IRanges(gaps(ranges(cds.cur))))
-          values(gaps.cur) <- data.frame(tx_id = id, type = "gap")
-          cds_union <- range(cds.cur)
+          cds_union <- reduce(cds.cur)
           utrs <- setdiff(exon_union, cds_union)
           values(utrs) <- data.frame(tx_id = id, type = "utr")
+          gaps.cur <- GRanges(seqs,gaps(reduce(c(ranges(cds_union), ranges(utrs)))))
+          values(gaps.cur) <- data.frame(tx_id = id, type = "gap")
           gr <- c(exons.cur, introns.cur, cds.cur, gaps.cur, utrs)
         }else{
           utrs <- exons.cur
           values(utrs)$type <- factor("utr")
           gaps.cur <- introns.cur
           values(gaps.cur)$type <- factor("gap")
-          ## not sure about gaps
           gr <- c(exons.cur, introns.cur, utrs, gaps.cur)
         }
         gr

@@ -1,5 +1,12 @@
-=====================
+======================
 2011-10-10
 =====================
-submit to BioC
-test
+* Version bump to 1.1.3
+* fix bug in fetch
+* NAMESPACE udpate due to BiocGenerics
+
+
+======================
+2011-10-10
+=====================
+* submit to BioC

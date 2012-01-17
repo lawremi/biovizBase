@@ -1,13 +1,15 @@
 ## ======================================================================
 ## Import
 ## ======================================================================
+## BiocGenerics
+importFrom(BiocGenerics, cbind, rbind, unique,
+           lapply, sapply, setdiff, Reduce)
+## importFrom(BiocGenerics, cbind, rbind)
 ## RColorBrewer
 import(RColorBrewer)
 import(dichromat)
 ## scales
 import(scales)
-## BiocGenerics
-importFrom(BiocGenerics, cbind, rbind)
 ## IRanges
 importFrom(IRanges, IRanges,  disjointBins,
            matchMatrix, findOverlaps, subsetByOverlaps,
@@ -23,13 +25,12 @@ importFrom(IRanges, IRanges,  disjointBins,
            reduce, punion, pgap, gaps)
 
 importMethodsFrom(IRanges,  split, sort,
-                  unlist,setdiff,
-                  Reduce,
+                  unlist,
                   as.data.frame,
                   length,
                   "[","[<-","[[", "[[<-","$",
-                  "%in%", show, 
-                  lapply, sapply)
+                  "%in%", show)
+
 
 importClassesFrom(IRanges)
 
