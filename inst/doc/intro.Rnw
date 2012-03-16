@@ -451,7 +451,7 @@ the data, we may hope that adding invisible extensions to the reads
 will prevent closely neighbored reads from showing up on the same
 level.
 
-\Rfunction{addSteppings} function takes a
+\Rfunction{addStepping} function takes a
 \Robject{GenomicRanges} object and will add an extra column
 called \textbf{.levels} to the object.  This function is essentially a
 wrapper around a function \Rfunction{disjointBins} but allows a more
@@ -471,12 +471,12 @@ elementMetadata, the function will make sure
 For now, this function is only useful for visualization purposes.
 
 @ 
-<<addSteppings-gr>>=
-head(addSteppings(gr))
-head(addSteppings(gr, group.name = "pair"))
+<<addStepping-gr>>=
+head(addStepping(gr))
+head(addStepping(gr, group.name = "pair"))
 gr.close <- GRanges(c("chr1", "chr1"), IRanges(c(10, 20), width = 9))
-addSteppings(gr.close)
-addSteppings(gr.close, extend.size = 5)
+addStepping(gr.close)
+addStepping(gr.close, extend.size = 5)
 @ %def 
 
 \subsection{Shrink the Gaps}

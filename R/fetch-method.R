@@ -1,16 +1,4 @@
 ## setGeneric("fetch", function(obj, ...) standardGeneric("fetch"))
-
-## ======================================================================
-##  For "TranscriptDb" object
-## ======================================================================
-## FIXME: to remove the dependency, I change S4 to simple check
-## So don't have to import class
-## setMethod("fetch", "TranscriptDb", function(obj, which,...,gene.id,
-##                                             type = c("all", "single",
-##                                               "exons.reduce",
-##                                               "exons.all",
-##                                               "exons.geneid")){
-  
 fetch <- function(obj, which, ..., gene.id,
                   resize.extra = 10,
                   include.level = TRUE,
@@ -32,6 +20,12 @@ fetch <- function(obj, which, ..., gene.id,
     if(!(type %in% .txdb.type))
       stop("type for TranscriptDb must be ", .txdb.type)
     require(GenomicFeatures)
+    ## 1st set all the sequences to be inactive:
+    isActiveSeq(obj)[seqlevels(obj)] <- FALSE
+    ## Then set only "chr9" to be active:
+    seqnms <- as.character(unique(seqnames(which)))
+    isActiveSeq(obj)[seqnms] <- TRUE
+    ## You can see which are active like this:
     if(type == "exons.geneid"){
       message("return exons within one gene...")
       ## this require gene id, only exons
@@ -58,42 +52,79 @@ fetch <- function(obj, which, ..., gene.id,
       exons <- exonsBy(obj, "tx")
       message("Parsing cds...")
       cdss <- cdsBy(obj, "tx")
-      ## message("Parsing introns...")
-      ## introns <- intronsByTranscript(obj)
-      message("Parsing Transcirpts...")
-      ## tx <- transcriptsByOverlaps(obj, which)
-      tx <- transcripts(obj)
+      message("Parsing transcripts...")
+      tx <- transcripts(obj, columns = c("tx_id", "tx_name","gene_id"))
       tx <- subsetByOverlaps(tx, which)
-      ## based on tx_id
+      message("Aggregating...")      
       txids <- values(tx)$tx_id
+      ## txnms <- values(tx)$tx_name
+      ## geneids <- values(tx)$gene_id
+      ## need to add gene id
       lst <- lapply(txids, function(id){
         id <- as.character(id)
+        tx_nm <- values(tx)[values(tx)$tx_id == id, "tx_name"]
+        gene_id <- values(tx)[values(tx)$tx_id == id, "gene_id"]
+        gene_id <- paste(unlist(gene_id), sep = ",")
+        if(!length(gene_id))
+          gene_id <- NA
         exons.cur <- exons[[id]]
-        values(exons.cur) <- data.frame(tx_id = id, type = "exon")
-        ## need to check cds
+        values(exons.cur) <- data.frame(tx_id = id,
+                                        tx_name = tx_nm,
+                                        gene_id = gene_id,
+                                        type = "exon")
+        
         cds.cur <- cdss[[id]]
         seqs <- unique(as.character(seqnames(exons.cur)))
         exon_union <- reduce(exons.cur)
-        introns.cur <- GRanges(seqs,IRanges(gaps(ranges(exons.cur))))
-        values(introns.cur) <- data.frame(tx_id = id, type = "intron")
+        ir.g <- IRanges(gaps(ranges(exons.cur)))
+        if(length(ir.g)){
+          introns.cur <- GRanges(seqs,ir.g)
+          values(introns.cur) <- data.frame(tx_id = id,
+                                            tx_name = tx_nm,
+                                            gene_id = gene_id,
+                                            type = "intron")
+
+        }else{
+          introns.cur <- GRanges()
+        }
+         ## tryres <- try(introns.cur <- GRanges(seqs,IRanges(gaps(ranges(exons.cur)))))
+        ## if(inherits(tryres, "try-error")) browser()
         if(!is.null(cds.cur)){
-          values(cds.cur) <- data.frame(tx_id = id, type = "cds")
+          values(cds.cur) <- data.frame(tx_id = id,
+                                        tx_name = tx_nm,
+                                        gene_id = gene_id,                                        
+                                        type = "cds")
+
           cds_union <- reduce(cds.cur)
           utrs <- setdiff(exon_union, cds_union)
-          values(utrs) <- data.frame(tx_id = id, type = "utr")
-          gaps.cur <- GRanges(seqs,gaps(reduce(c(ranges(cds_union), ranges(utrs)))))
-          values(gaps.cur) <- data.frame(tx_id = id, type = "gap")
+          values(utrs) <- data.frame(tx_id = id,
+                                     tx_name = tx_nm,
+                                        gene_id = gene_id,                                     
+                                     type = "utr")
+          ir.g2 <- gaps(reduce(c(ranges(cds_union), ranges(utrs))))
+          if(length(ir.g2)){
+            gaps.cur <- GRanges(seqs,ir.g2)
+          values(gaps.cur) <- data.frame(tx_id = id,
+                                         tx_name = tx_nm,
+                                        gene_id = gene_id,                                         
+                                         type = "gap")
+          }else{
+            gaps.cur <- GRanges()
+          }
           gr <- c(exons.cur, introns.cur, cds.cur, gaps.cur, utrs)
         }else{
           utrs <- exons.cur
           values(utrs)$type <- factor("utr")
           gaps.cur <- introns.cur
-          values(gaps.cur)$type <- factor("gap")
+          if(length(gaps.cur)){
+            values(gaps.cur)$type <- factor("gap")
+          }
           gr <- c(exons.cur, introns.cur, utrs, gaps.cur)
         }
         gr
       })
       res <- do.call("c", lst)
+      isActiveSeq(obj)[seqlevels(obj)] <- TRUE
       res <- keepSeqlevels(res, unique(as.character(seqnames(res))))
     }
     if(type == "single"){
@@ -111,7 +142,7 @@ fetch <- function(obj, which, ..., gene.id,
     message("Done")
   }
   if(is(obj, "GappedAlignments")){
-    require(Rsamtools)
+    ## require(Rsamtools)
     ## require(Rsamtools)
     if(!missing(which))
       obj <- subsetByOverlaps(obj, which)
@@ -135,7 +166,7 @@ fetch <- function(obj, which, ..., gene.id,
     ## length(obj)
     ## sort based on junction first
     if(include.level)
-      grg.u <- addSteppings(grg.u, group.name = "qname")
+      grg.u <- addStepping(grg.u, group.name = "qname")
       ## values(grg.u)$.levels <- rep(disjointBins(irs), times = elementLengths(grl))
     ## seqlevels(grg.u) <- unique(as.character(seqnames(grg.u)))
     grg.u <- keepSeqlevels(grg.u, unique(as.character(seqnames(grg.u))))
@@ -145,12 +176,12 @@ fetch <- function(obj, which, ..., gene.id,
   if(is(obj, "BamFile")){
     if(!(type %in% .bamfile.type))
       stop("type for TranscriptDb must be ", .bamfile.type)
-    require(Rsamtools)
+    ## require(Rsamtools)
     if(type == "gapped.pair"){
       message("Read GappedAlignments from BamFile...")
       ga <- readBamGappedAlignments(obj,
                                     param = ScanBamParam(which = which),
-                                    use.name = use.name, ...)
+                                    use.names = use.name, ...)
       res <- fetch(ga)
     }
 
@@ -166,7 +197,7 @@ fetch <- function(obj, which, ..., gene.id,
       message("Read GappedAlignments from BamFile...")
       ga <- readBamGappedAlignments(obj,
                                     param = ScanBamParam(which = which),
-                                    use.name = use.name, ...)
+                                    use.names = use.name, ...)
       res.gp <- fetch(ga)
       message("Combine...")
       nms <- values(res.mb)$qname
@@ -181,7 +212,7 @@ fetch <- function(obj, which, ..., gene.id,
 }
 
 scanBamGRanges <- function(file, which, ...){
-  require(Rsamtools)
+  ## require(Rsamtools)
   param <- ScanBamParam(which = which, ...)
   message("scanBam...")
   bam <- scanBam(file, param = param)

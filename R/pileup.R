@@ -25,7 +25,6 @@
 pileupAsGRanges <- function(bams, regions,
                             DNABases = c("A", "C", "G", "T", "N"),
                             ...) {
-  require(Rsamtools)
   pileupFiles <- PileupFiles(bams)
   pileupParams <- PileupParam(which = regions, ...)
   ## what if it's multiple bam files
@@ -95,7 +94,6 @@ pileupAsGRanges <- function(bams, regions,
 ##' @author Michael Lawrence, Tengfei Yin
 pileupGRangesAsVariantTable <- function(gr, genome,
                                         DNABases = c("A", "C", "G", "T", "N")) {
-  require(Rsamtools)
   require(BSgenome)
   colnms <- colnames(values(gr))
   DNAbases <- colnms[colnms %in% DNABases]

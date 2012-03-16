@@ -1,4 +1,4 @@
-setGeneric("addSteppings",function(obj,...) standardGeneric("addSteppings"))
+setGeneric("addStepping",function(obj,...) standardGeneric("addStepping"))
 
 setGeneric("getFragLength", function(obj, ...) standardGeneric("getFragLength"))
 

@@ -1,6 +1,10 @@
+useDynLib(biovizBase, .registration=TRUE)
+
 ## ======================================================================
 ## Import
 ## ======================================================================
+## methods
+import(methods)
 ## BiocGenerics
 importFrom(BiocGenerics, cbind, rbind, unique,
            lapply, sapply, setdiff, Reduce)
@@ -18,7 +22,7 @@ importFrom(IRanges, IRanges,  disjointBins,
            "values", "values<-",
            ranges, "ranges<-", 
            isTRUEorFALSE, coverage, slice,
-           elementLengths,
+           elementLengths,endoapply,
            ## viewWhichMins, viewWhichMaxs,
            ## viewMins, viewMaxs, viewSums, viewMeans,
            ## runValue, runLength,
@@ -45,7 +49,7 @@ importMethodsFrom(GenomicRanges, ranges, "ranges<-",
                   keepSeqlevels, renameSeqlevels,
                   as.data.frame)
 
-importClassesFrom(GenomicRanges, GRanges)
+importClassesFrom(GenomicRanges, GRanges, GenomicRanges)
 
 ## Biostrings
 importFrom(Biostrings, AA_ALPHABET,
@@ -55,6 +59,14 @@ importFrom(Biostrings, AA_ALPHABET,
            RNA_ALPHABET,
            AMINO_ACID_CODE,           
            RNA_BASES)
+
+## Rsamtools
+importClassesFrom(Rsamtools, BamFile)
+importFrom(Rsamtools, index, scanBamFlag, PileupFiles,
+           PileupParam)
+importMethodsFrom(Rsamtools, path, ScanBamParam,
+                 applyPileups, scanBam, readBamGappedAlignments)
+
 ## ======================================================================
 ##    export
 ## ======================================================================
@@ -69,14 +81,14 @@ export(getBioColor,
        colorBlindSafePal,
        blind.pal.info,
        brewer.pal.blind.info,
-       dichromat.pal.blind.info)
+       dichromat.pal.blind.info,
+       estimateCoverage)
 
 
 ## utils
-exportMethods(addSteppings, 
-              ## sortChr, orderChr,
+exportMethods(addStepping, 
               shrinkageFun, maxGap)
-              ## getFragLength
+
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
        pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,
        showColor, isJunctionRead, isMatchedWithModel)

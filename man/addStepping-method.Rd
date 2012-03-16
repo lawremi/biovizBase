@@ -1,8 +1,9 @@
-\name{addSteppings-method}
-\alias{addSteppings}
-\alias{addSteppings,GenomicRanges-method}
+\name{addStepping-method}
+\alias{addStepping}
+\alias{addStepping,GenomicRanges-method}
 \usage{
-\S4method{addSteppings}{GenomicRanges}(obj, group.name, extend.size = 0)
+\S4method{addStepping}{GenomicRanges}(obj, group.name, extend.size = 0,
+                       group.selfish = TRUE)
 }
 \title{Adding disjoint levels to a GenomicRanges object}
 \description{Adding disjoint levels to a GenomicRanges object}
@@ -22,8 +23,14 @@ be on the same level and nothing falls in between.}
 GenomicRanges object, if it's 10, then adding 5 at both end. This
 make the close neighbors assigned to the different levels and make
 your eyes easy to identify.}
+ \item{group.selfish}{
+    Passed to \code{addStepping}, control whether to show each group as
+    unique level or not. If set to \code{FALSE}, if two groups are not
+    overlapped with each other, they will probably be layout in the same
+    level to save space.
+ }  
 }
-\value{A modified GenmicRanges object with \code{.levels} as one column.}
+\value{A modified GenmicRanges object with \code{stepping} as one column.}
 \docType{methods}
 \author{Tengfei Yin}
 \examples{
@@ -46,11 +53,11 @@ gr <- GRanges(seqnames =
                 replace = TRUE))
 
 ## grouping and extending
-head(addSteppings(gr))
-head(addSteppings(gr, group.name = "pair"))
+head(addStepping(gr))
+head(addStepping(gr, group.name = "pair"))
 gr.close <- GRanges(c("chr1", "chr1"), IRanges(c(10, 20), width = 9))
-addSteppings(gr.close)
-addSteppings(gr.close, extend.size = 5)
+addStepping(gr.close)
+addStepping(gr.close, extend.size = 5)
 }
 
 
