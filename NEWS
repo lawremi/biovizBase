@@ -1,12 +1,12 @@
-======================
-2012-01-17
-=====================
-* Version bump to 1.1.5
-* fix bug in fetch
-* NAMESPACE udpate due to BiocGenerics
+CHANGES IN VERSION 1.1.16
+------------------------
 
+NEW FEATURES
 
-======================
-2011-10-10
-=====================
-* submit to BioC
+    o addSteping add extra arugments group.selfish to control stepping method
+
+    o add estimateCoverage method for fast estimate coverage
+
+SIGNIFICANT USER-LEVEL CHANGES
+
+    o addStepings rename to addStepping
