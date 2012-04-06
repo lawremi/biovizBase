@@ -14,6 +14,8 @@ import(RColorBrewer)
 import(dichromat)
 ## scales
 import(scales)
+## Hmisc
+importFrom(Hmisc, bezier)
 ## IRanges
 importFrom(IRanges, IRanges,  disjointBins,
            matchMatrix, findOverlaps, subsetByOverlaps,
@@ -67,14 +69,14 @@ importFrom(Rsamtools, index, scanBamFlag, PileupFiles,
 importMethodsFrom(Rsamtools, path, ScanBamParam,
                  applyPileups, scanBam, readBamGappedAlignments)
 
+importClassesFrom(GenomicFeatures,TranscriptDb)
+
 ## ======================================================================
 ##    export
 ## ======================================================================
 ## color
 export(getBioColor,
        plotColorLegend,
-       transformGRangesForEvenSpace,
-       transformGRangesToDfWithTicks,
        genBrewerBlindPalInfo,
        genDichromatPalInfo,
        genBlindPalInfo,
@@ -85,11 +87,25 @@ export(getBioColor,
        estimateCoverage)
 
 
+
+## transform
+export(transformToGenome,
+       transformToCircle,
+       transformToRectInCircle,
+       transformToBarInCircle,
+       transformToSegInCircle,
+       transformToLinkInCircle,
+       transformDfToGr)
+exportMethods(transformToDf)
+
 ## utils
 exportMethods(addStepping, 
-              shrinkageFun, maxGap)
+              shrinkageFun,
+              maxGap)
 
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
        pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,
-       showColor, isJunctionRead, isMatchedWithModel)
+       showColor, isJunctionRead, isMatchedWithModel,
+       flatGrl, getIdeoGR, getScale, getFormalNames, subsetArgsByFormals)
+
 ## exportPattern("^[^\\.]")

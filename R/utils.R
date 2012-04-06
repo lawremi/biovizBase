@@ -69,86 +69,6 @@ pspanGR <- function(file, region, sameChr = TRUE, isize.cutoff = 170){
 }
 
 
-## retrun a new GRanges, with new coord
-transformGRangesForEvenSpace <- function(gr){
-  ## make sure it's reduced one
-  ## TODO: release a error
-  ## if(anyDuplicated(matchMatrix(findOverlaps(ranges(gr)))[,1]))
-  ##   stop("Your GRanges object should not have overlaped intervals")
-  ## get whole coordinate
-  st <- start(range(gr))
-  ed <- end(range(gr))
-  wd <- width(range(gr))
-  ## we need to find midpoint first
-  N <- length(gr)
-  wid <- wd/N
-  x.new <- st + wid/2 + (1:N - 1) * wid
-  values(gr)$x.new <- x.new
-  gr  
-}
-
-transformGRangesToDfWithTicks <- function(gr, fixed.length = NULL){
-  if(is.null(fixed.length)){
-    ## fixed.length <- getSpaceByData(gr)
-    fixed.length <- getSpaceBySeqlengths(gr)
-  }else{
-    if(is.null(names(fixed.length)))
-      stop("Please name your fixed.length with seqnames")
-  }
-  ## chr.order <- unique(as.character(seqnames(gr.snp)))
-  chr.order <- names(seqlengths(gr))
-  sft <- getShiftSpace(fixed.length[chr.order])
-  df <- as.data.frame(gr)
-  df$midpoint <- (df$start + df$end)/2
-  ticks.pos <- fixed.length/2
-  ## ticks.pos <- data.frame(pos = ticks.pos, seqnames = )
-  df <- shiftDfBySpace(df, sft)
-  df$seqnames <- factor(as.character(df$seqnames),
-                        levels = chr.order)
-  ticks <- sft[names(ticks.pos)] + ticks.pos
-  list(df = df, ticks = ticks)
-}
-
-## compute default length, data-wide
-getSpaceByData <- function(gr){
-  grl <- split(gr, seqnames(gr))
-  ## ifseqlengths(gr)
-  res <- unlist(width(range(grl)))
-  res
-}
-
-getSpaceBySeqlengths <- function(gr){
-  res <- seqlengths(gr)
-  if(any(is.na(res))){
-    idx <- is.na(res)
-    res <- getSpaceByData(gr)[names(res[idx])]
-  }
-  res
-}
-
-getShiftSpace <- function(val){
-  N <- length(val)
-  ## avoid integer overflow, covert to numeric
-  res <- c(0, cumsum(as.numeric(val[-N])))
-  res <- res + 1
-  names(res) <- names(val)
-  res
-}
-
-shiftDfBySpace <- function(df, space){
-  ## GRanges need to be coerced to df
-  ## overcome the integer limits of ranges
-  ## make it vectorized
-  chrs <- as.character(df$seqnames)
-  shifts <- space[chrs]
-  df$start <- df$start + shifts
-  df$end <- df$end + shifts
-  if("midpoint" %in% colnames(df))
-    df$midpoint <- df$midpoint + shifts
-  df
-}
-
-
 genSymbols <- function(org){
   ## TODO, add gene id
   if(!is(org, "OrgDb")){
@@ -204,4 +124,192 @@ genSymbols <- function(org){
   names(genesymbol) <- values(genesymbol)$symbol
   message("Done")
   genesymbol
+}
+
+## get gaps 
+getGap <- function(data, group.name, facets = NULL){
+  if(!length(facets))
+    facets <- as.formula(~seqnames)
+  allvars <- all.vars(as.formula(facets))
+  allvars.extra <- allvars[!allvars %in% c(".", "seqnames")]
+
+  if(!"stepping" %in% colnames(values(data)))
+    stop("stepping is not in data")
+  grl <- splitByFacets(data, facets)  
+  ## res <- split(data, seqnames(data))
+  
+  grl <- lapply(grl, function(dt){
+    res <- split(dt, values(dt)[,group.name])
+    gps.lst <- lapply(res, function(x){
+      if(length(x) > 1){
+        gps <- gaps(ranges(x))
+        if(length(gps)){
+          seqs <- unique(as.character(seqnames(x)))
+          ir <- gps
+          gr <- GRanges(seqs, ir)
+          values(gr)$stepping <- unique(values(x)$stepping)
+          values(gr)[,allvars.extra] <- rep(unique(values(x)[, allvars.extra]),
+                                            length(gr))
+          
+          gr
+        }else{
+          NULL
+        }}else{
+          NULL
+        }
+    })
+    idx <- which(!unlist(lapply(gps.lst, is.null)))
+    gps <- do.call(c, gps.lst[idx])
+  })
+
+  grl <- grl[!unlist(lapply(grl, is.null))]
+
+  if(length(grl)){
+
+    res <- unlist(do.call(GRangesList, do.call(c, grl)))
+    values(res)$type <- "gaps"
+    res <- resize(res, width = width(res) + 2, fix = "center")
+  }else{
+    res <- GRanges()
+  }
+  res
+}
+
+
+getIdeoGR <- function(gr){
+  if(!is(gr, "GenomicRanges"))
+    stop("require GenomicRanges")
+  if(all(is.na(seqlengths(gr)))){
+    warning("geom(ideogram) need valid seqlengths information for accurate mapping,
+                 now use reduced information as ideogram... ")
+    res <- reduce(gr, ignore = TRUE)
+    start(res) <- 1
+    res
+  }else{
+    res <- as(seqinfo(gr), "GenomicRanges")
+  }
+  res
+}
+
+## get major/mionr scale, y value, major text?
+getScale <- function(gr, unit = NULL, n = 100, type = c("M", "B", "sci")){
+  type <- match.arg(type)
+  if(is.null(unit)){
+    unit <- sum(as.numeric(width(gr)))/n
+    unit <- 10^floor(log10(unit))
+  }
+  ## not like normal scale
+  res <- split(gr, seqnames(gr))
+  grl <- endoapply(res, function(gr){
+    st <- 1
+    ed <- end(gr)
+    major.pos <- seq(st, ed, by = 5*unit)
+    minor.pos <- seq(st, ed, by = unit)
+    minor.pos <- setdiff(minor.pos, major.pos)
+    if(type == "M"){
+      texts <- c(paste(as.character(round(major.pos/1e6, digits = 1)), "M",
+                       sep = ""),
+               rep("", length(minor.pos)))
+    }
+    if(type == "B"){
+      texts <- c(paste(as.character(round(major.pos/1e9, digits = 1)), "B",
+                       sep = ""),
+               rep("", length(minor.pos)))
+    }
+    if(type == "sci"){
+    texts <- c(as.character(format(major.pos, scientific = TRUE, digit = 1)),
+               rep("", length(minor.pos)))
+    }
+    GRanges(seqnames(gr),
+            IRanges(start = c(major.pos, minor.pos),
+                    width = 1),
+            type = c(rep("major", length(major.pos)), rep("minor", length(minor.pos))),
+            scale.y = c(rep(3, length(major.pos)),
+                         rep(1, length(minor.pos))),
+            text.major = texts)
+  })
+  res <- unlist(grl)
+  seqlengths(res) <- seqlengths(gr)
+  res
+}
+
+getNR <- function(x, type = c("NUSE", "RLE"),range = 0, ...){
+  require(affyPLM)
+  compute.nuse <- function(which) {
+    nuse <- apply(x@weights[[1]][which, ], 2, sum)
+    1/sqrt(nuse)
+  }
+
+  type <- match.arg(type)
+  model <- x@model.description$modelsettings$model
+
+  if (type == "NUSE") {
+    if (x@model.description$R.model$which.parameter.types[3] == 
+        1 & x@model.description$R.model$which.parameter.types[1] == 
+        0) {
+      grp.rma.se1.median <- apply(se(x), 1, median, 
+                                  na.rm = TRUE)
+      res <- grp.rma.rel.se1.mtx <- sweep(se(x), 1, grp.rma.se1.median, 
+                                          FUN = "/")
+
+    }
+    else {
+      which <- indexProbesProcessed(x)
+      ses <- matrix(0, length(which), 4)
+      if (x@model.description$R.model$response.variable == 
+          1) {
+        for (i in 1:length(which)) ses[i, ] <- compute.nuse(which[[i]])
+      }
+      else {
+        stop("Sorry I can't currently impute NUSE values for this PLMset object")
+      }
+      grp.rma.se1.median <- apply(ses, 1, median)
+      res <- grp.rma.rel.se1.mtx <- sweep(ses, 1, grp.rma.se1.median, 
+                                          FUN = "/")
+      
+    }
+  }
+  if(type == "RLE"){
+    if (x@model.description$R.model$which.parameter.types[3] == 
+        1) {
+      medianchip <- apply(coefs(x), 1, median)
+      res <- sweep(coefs(x), 1, medianchip, FUN = "-")
+    }
+    else {
+      stop("It doesn't appear that a model with sample effects was used.")
+    }  
+  }
+  res
+}
+
+
+
+getFormalNames <- function(..., remove.dots = TRUE){
+  res <- lapply(list(...), function(fun){
+    if(is.function(fun)){
+      res <- names(formals(fun))
+      if(remove.dots)
+        res <- res[ res != "..."]
+      res
+    }else{
+      stop("arguments passed to getFormalNames must be functions")
+    }
+  })
+  res <- unlist(res)
+  res <- res[!duplicated(res)]
+  res
+}
+
+
+subsetArgsByFormals <- function(args, ..., remove.dots = TRUE){
+  .formals <- getFormalNames(..., remove.dots = remove.dots)
+  res <- args[names(args) %in% .formals]
+  res
+}
+
+flatGrl <- function(object, indName = "grl_name"){
+  idx <- togroup(object)
+  gr <- stack(object, indName)
+  values(gr) <-   cbind(values(gr), values(object)[idx,,drop = FALSE])
+  gr
 }
