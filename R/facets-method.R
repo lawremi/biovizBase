@@ -56,6 +56,11 @@ setMethod("splitByFacets", c("GRanges", "missing"), function(object, facets){
   res
 })
 
+setMethod("splitByFacets", c("GRanges", "NULL"), function(object, facets){
+  res <- split(object, seqnames(object))
+  res
+})
+
 
 isFacetByOnlySeq <- function(facets){
   allvars <- all.vars(as.formula(facets))
@@ -68,64 +73,6 @@ isFacetByOnlySeq <- function(facets){
 
 
 
-## need to consider a length 1 facets formula
-.buildFacetsFromArgs <- function(object, args){
-  isOneSeq <- length(unique(as.character(seqnames(object)))) == 1
-  args.facets <- args
-  args.facets$facets <- strip_facets_dots(args$facets)
-  facets <- args.facets$facets
-  if(length(facets)){
-    ## allvars <- all.vars(as.formula(facets))
-    ## if(length(allvars) == 1){
-    .checkFacetsRestrict(facets, object)
-    if(is(facets, "GRanges")){
-      args.facets$facets <- substitute(~.bioviz.facetid)
-      ## ok, default is "free"
-      if(!("scales" %in% names(args.facets)))
-        args.facets$scales <- "free"
-      facet.logic <- ifelse(any(c("nrow", "ncol") %in% names(args.facets)),
-                            TRUE, FALSE)
-      if(facet.logic)
-        facet <- do.call(facet_wrap, args.facets)
-      else
-        facet <- do.call(facet_grid, args.facets)
-    }else{
-      if(!("scales" %in% names(args.facets)))
-        args.facets <- c(args.facets, list(scales = "fixed"))
-      allvars <- all.vars(as.formula(args.facets$facets))
-      
-      if(isOneSeq & isFacetByOnlySeq(args.facets$facets)){
-        facet <- NULL
-      }else{
-      facet.logic <- ifelse(any(c("nrow", "ncol") %in% names(args.facets)),
-                            TRUE, FALSE)
-      if(facet.logic){
-        facet <- do.call(facet_wrap, args.facets)
-      }else{
-        facet <- do.call(facet_grid, args.facets)
-      }
-      facet <- do.call(facet_grid, args.facets)
-    }
-    }}else{
-      if(!("scales" %in% names(args.facets)))
-        args.facets <- c(args.facets, list(scales = "fixed"))
-      args.facets$facets <- substitute(~seqnames)
-      allvars <- all.vars(as.formula(args.facets$facets))
-      
-      if(isOneSeq & isFacetByOnlySeq(args.facets$facets)){
-        facet <- NULL
-      }else{
-        facet.logic <- ifelse(any(c("nrow", "ncol") %in% names(args.facets)),
-                              TRUE, FALSE)
-        if(facet.logic){
-          facet <- do.call(facet_wrap, args.facets)
-        }else{
-          facet <- do.call(facet_grid, args.facets)
-        }
-      }
-    }
-  facet
-}
 
 
 ## that's for linear or default!
@@ -150,21 +97,21 @@ isFacetByOnlySeq <- function(facets){
 }
 
 ## that's for layout_karyogram
-.checkFacetsRestrictForKaryogram <- function(facets, object){
-  allvars <- all.vars(as.formula(facets))
-  if(length(allvars) == 1){
-    if(allvars[1] != "seqnames")
-      stop("seqnames must be present in layout karyogram")
-  }
-  if(length(allvars) > 1){
-    if(!"seqnames" %in% allvars){
-      stop("seqnames must be present in layout karyogram")
-    }else{
-      allvars.extra <- setdiff(allvars, "seqnames")
-      if(!allvars.extra  %in% colnames(values(object)))
-        stop("facet variable must be in the data")
-    }
-  }
-}
+## .checkFacetsRestrictForKaryogram <- function(facets, object){
+##   allvars <- all.vars(as.formula(facets))
+##   if(length(allvars) == 1){
+##     if(allvars[1] != "seqnames")
+##       stop("seqnames must be present in layout karyogram")
+##   }
+##   if(length(allvars) > 1){
+##     if(!"seqnames" %in% allvars){
+##       stop("seqnames must be present in layout karyogram")
+##     }else{
+##       allvars.extra <- setdiff(allvars, "seqnames")
+##       if(!allvars.extra  %in% colnames(values(object)))
+##         stop("facet variable must be in the data")
+##     }
+##   }
+## }
 
 

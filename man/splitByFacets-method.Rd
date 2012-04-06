@@ -3,6 +3,7 @@
 \alias{splitByFacets,GRanges,formula-method}
 \alias{splitByFacets,GRanges,GRanges-method}
 \alias{splitByFacets,GRanges,NULL-method}
+\alias{splitByFacets,GRanges,missing-method}
 \title{split a GRanges by formula}
 \description{
   Split a GRanges by formula into GRangesList. Parse variables in
@@ -13,6 +14,7 @@
 \S4method{splitByFacets}{GRanges,formula}(object, facets)
 \S4method{splitByFacets}{GRanges,GRanges}(object, facets)
 \S4method{splitByFacets}{GRanges,NULL}(object, facets)
+\S4method{splitByFacets}{GRanges,missing}(object, facets)
 }
 \arguments{
   \item{object}{
