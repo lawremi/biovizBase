@@ -33,9 +33,19 @@ transformToGenome <- function(data, space.skip = 0.1){
   names(x.max) <- "genome"
   seqlengths(gr.new) <- x.max
   metadata(gr.new)$space.skip <- space.skip
-  metadata(gr.new)$transformed <- TRUE
+  metadata(gr.new)$coord <- "genome"
   gr.new
 }
+
+is_coord_genome <- function(data){
+  if(!is.null(metadata(data)$coord)){  
+   res <- metadata(data)$coord == "genome"
+  }else{
+    res <- FALSE
+  }
+  res
+}
+
 
 ## then need a transformation to circlular view
 ## data is a GRanges dataect

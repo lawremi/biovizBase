@@ -103,13 +103,16 @@ exportMethods(addStepping,
               shrinkageFun,
               maxGap, 
               splitByFacets,
-              getGaps)
+              getGaps,
+              getXScale,
+              getYLab)
 
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
        pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,
        showColor, isJunctionRead, isMatchedWithModel,
        flatGrl, getIdeoGR, getScale, getFormalNames, subsetArgsByFormals,
-       parseArgsForAes, parseArgsForNonAes, strip_formula_dots)
+       parseArgsForAes, parseArgsForNonAes, strip_formula_dots,
+       is_coord_truncate_gaps, is_coord_genome)
 
 
 ## exportPattern("^[^\\.]")

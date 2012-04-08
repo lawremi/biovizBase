@@ -85,33 +85,12 @@ isFacetByOnlySeq <- function(facets){
   }
   if(length(allvars) > 1){
     if(allvars[2] != "seqnames" & allvars[2] != "."){
-      stop("Column of facets formula can only be seqnames, such as . ~ seqnames, in default restrict mode, you can only change row varaibles")
+      stop("Column of facets formula can only be seqnames or '.', such as . ~ seqnames, in default restrict mode, you can only change row varaibles")
     }
     if(allvars[1] != "."){
       if(!allvars[1] %in% c(colnames(values(object)), "strand"))
         stop(allvars[1]," doesn't exists in data columns")
-      if(allvars[2] != "seqnames")
-        stop("Column of facets formula can only be seqnames, such as . ~ seqnames, in default restrict mode, you can only change row varaibles")
     }
   }
 }
-
-## that's for layout_karyogram
-## .checkFacetsRestrictForKaryogram <- function(facets, object){
-##   allvars <- all.vars(as.formula(facets))
-##   if(length(allvars) == 1){
-##     if(allvars[1] != "seqnames")
-##       stop("seqnames must be present in layout karyogram")
-##   }
-##   if(length(allvars) > 1){
-##     if(!"seqnames" %in% allvars){
-##       stop("seqnames must be present in layout karyogram")
-##     }else{
-##       allvars.extra <- setdiff(allvars, "seqnames")
-##       if(!allvars.extra  %in% colnames(values(object)))
-##         stop("facet variable must be in the data")
-##     }
-##   }
-## }
-
 

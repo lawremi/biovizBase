@@ -9,7 +9,8 @@
 \alias{transformToDf}
 \alias{transformToDf-method}
 \alias{transformToDf,GRanges-method}
-\title{Transform GRanges to genome coordinates and circular layout}
+\alias{is_coord_genome}
+\title{Transform GRanges to different coordinates and layout}
 \description{
   Used for coordiante genome transformation, other transformation in
   circular view.
@@ -40,8 +41,10 @@ transformToLinkInCircle(data, linked.to, space.skip = 0.1, trackWidth = 10, radi
 transformDfToGr(data, seqnames = NULL, start = NULL, end = NULL,
                            width = NULL, strand = NULL)
 
+
 \S4method{transformToDf}{GRanges}(data)
 
+is_coord_genome(data)
 }
 \arguments{
   \item{data}{
@@ -118,6 +121,7 @@ gr2 <- GRanges("chr2", IRanges(start = as.integer(runif(20, 1, 100)),
 width = 5))
 gr <- c(gr1, gr2)
 gr.t <- transformToGenome(gr, space.skip = 1)
+is_coord_genome(gr.t)
 transformToCircle(gr.t)
 transformToRectInCircle(gr)
 transformToBarInCircle(gr)

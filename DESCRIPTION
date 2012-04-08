@@ -27,5 +27,6 @@ Collate: utils.R
 	 transform.R
 	 facets-method.R
 	 aes.R
+	 scale.R
 	 zzz.R
 	 biovizBase-package.R

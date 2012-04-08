@@ -1,5 +1,8 @@
 ## setGeneric("fetch", function(obj, ...) standardGeneric("fetch"))
 fetch <- function(obj, which, ..., gene.id,
+                  truncate.gaps = FALSE,
+                  truncate.fun = NULL,
+                  ratio = 0.0025,
                   resize.extra = 10,
                   include.level = TRUE,
                   use.name = TRUE,
@@ -207,6 +210,17 @@ fetch <- function(obj, which, ..., gene.id,
       values(res.gp)$isize <- isize[values(res.gp)$qname]
       res <- res.gp
     }
+  }
+  if(truncate.gaps){
+    if(is.null(truncate.fun)){
+      if("gap" %in% unique(values(res)$type))
+        idx <- values(res)$type %in% c("utr", "cds")
+      res.s <- reduce(res[idx], ignore.strand = TRUE)
+      truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                   maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                          ratio = ratio))
+    }
+    res <- truncate.fun(res)
   }
   res
 }
