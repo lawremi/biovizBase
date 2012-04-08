@@ -144,7 +144,7 @@ if(!group.name %in% colnames(values(obj)))
           seqs <- unique(as.character(seqnames(x)))
           ir <- gps
           gr <- GRanges(seqs, ir)
-          values(gr)[,group.name] <- unique(values(x)[,group.name])
+          values(gr)[,"stepping"] <- unique(values(x)[,"stepping"])
           values(gr)[,allvars.extra] <- rep(unique(values(x)[, allvars.extra]),
                                             length(gr))
           

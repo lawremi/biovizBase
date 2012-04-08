@@ -1,10 +1,10 @@
 \name{getGaps}
 \alias{getGaps}
 \alias{getGaps,GRanges-method}
-\title{get gaps for a faceted and grouped GRanges object}
+\title{get gaps for a stepping transformed GRanges object}
 \description{
-  Get gaps for a faceted and grouped GRanges object, for visualization
-  purpose. Please see details below for motivation.
+  Get gaps for a stepping transformed GRanges object, for visualization
+  purpose. So a extra "stepping" column is required. Please see details below for motivation.
 }
 \usage{
 \S4method{getGaps}{GRanges}(obj, group.name = NULL, facets = NULL)
@@ -33,9 +33,9 @@
   that. This leaves some computation like computing gaps hard based on
   solely \code{GRanges} object. Extra information like facets formula
   and group method would help to generate gaps which make sure they are
-  aligned on the same level and within the same panel for another
-  \code{GRanges}. facets variables will be added to gaps \code{GRanges}
-  along with group.name.
+  aligned on the same level and within the same panel for grouped
+  intervals. facets variables will be added to gaps \code{GRanges} along
+  with group.name.
 }
 \examples{
 set.seed(1)
