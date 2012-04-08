@@ -10,12 +10,12 @@ newDataAfterFacetByGr <- function(gr, which, id.name){
   do.call(c, res)
 }
 
-strip_facets_dots <- function(facets){
-  allvars <- all.vars(as.formula(facets))
+strip_formula_dots <- function(formula){
+  allvars <- all.vars(as.formula(formula))
   idx <- ggplot2_is_calculated_aes(allvars)
   if(sum(idx))
-    facets[[which(idx)+1]] <- as.name(unlist(ggplot2_strip_dots(allvars[idx])))
-  facets
+    formula[[which(idx)+1]] <- as.name(unlist(ggplot2_strip_dots(allvars[idx])))
+  formula
 }
 
 setOldClass("formula")
@@ -23,7 +23,7 @@ setGeneric("splitByFacets", function(object, facets, ...) standardGeneric("split
 
 setMethod("splitByFacets", c("GRanges", "formula"), function(object, facets){
   .checkFacetsRestrict(facets, object)
-  facets <- strip_facets_dots(facets)
+  facets <- strip_formula_dots(facets)
   allvars <- all.vars(as.formula(facets))
   if(length(allvars) > 1){
   if(allvars[1] == "."){
@@ -77,7 +77,7 @@ isFacetByOnlySeq <- function(facets){
 
 ## that's for linear or default!
 .checkFacetsRestrict <- function(facets, object){
-  facets <- strip_facets_dots(facets)
+  facets <- strip_formula_dots(facets)
   allvars <- all.vars(as.formula(facets))
   if(length(allvars) == 1){
     if(allvars[1] != "seqnames")
