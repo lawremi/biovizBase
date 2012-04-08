@@ -1,5 +1,15 @@
 ## to reduce burden to import too much packages
 ## I redfined/move functions in some other packages to here
+.all_aesthetics <- c("adj", "alpha", "angle", "bg", "cex", "col",  "color", "colour", "fg",
+                     "fill", "group", "hjust",  "label", "linetype", "lower", "lty",
+                     "lwd",  "max", "middle", "min", "order", "pch", "radius", "sample",
+                     "shape" , "size",  "srt",  "upper", "vjust", "weight", "width",
+                     "x" ,  "xend", "xmax", "xmin", "xintercept",  "y",
+                     "yend", "ymax", "ymin", "yintercept",  "z")
+
+ggplot2_is.constant <- function(x){
+    sapply(x, function(x) "I" %in% all.names(asOneSidedFormula(x)))
+}
 
 ## for ggplot2
 ggplot2_is_calculated_aes <- function(aesthetics){

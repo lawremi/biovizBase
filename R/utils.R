@@ -126,28 +126,25 @@ genSymbols <- function(org){
   genesymbol
 }
 
-## get gaps 
-getGap <- function(data, group.name, facets = NULL){
-  if(!length(facets))
+setGeneric("getGaps", function(obj, ...) standardGeneric("getGaps"))
+setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
+if(!length(facets))
     facets <- as.formula(~seqnames)
   allvars <- all.vars(as.formula(facets))
   allvars.extra <- allvars[!allvars %in% c(".", "seqnames")]
-
-  if(!"stepping" %in% colnames(values(data)))
-    stop("stepping is not in data")
-  grl <- splitByFacets(data, facets)  
-  ## res <- split(data, seqnames(data))
-  
+if(!group.name %in% colnames(values(obj)))
+  stop(group.name, " is not in obj")
+  grl <- splitByFacets(obj, facets)  
   grl <- lapply(grl, function(dt){
-    res <- split(dt, values(dt)[,group.name])
-    gps.lst <- lapply(res, function(x){
+      res <- split(dt, values(dt)[,group.name])
+      gps.lst <- lapply(res, function(x){
       if(length(x) > 1){
         gps <- gaps(ranges(x))
         if(length(gps)){
           seqs <- unique(as.character(seqnames(x)))
           ir <- gps
           gr <- GRanges(seqs, ir)
-          values(gr)$stepping <- unique(values(x)$stepping)
+          values(gr)[,group.name] <- unique(values(x)[,group.name])
           values(gr)[,allvars.extra] <- rep(unique(values(x)[, allvars.extra]),
                                             length(gr))
           
@@ -158,22 +155,22 @@ getGap <- function(data, group.name, facets = NULL){
           NULL
         }
     })
-    idx <- which(!unlist(lapply(gps.lst, is.null)))
-    gps <- do.call(c, gps.lst[idx])
+      idx <- which(!unlist(lapply(gps.lst, is.null)))
+      gps <- do.call(c, gps.lst[idx])
   })
-
   grl <- grl[!unlist(lapply(grl, is.null))]
-
+  ## grl
   if(length(grl)){
-
+    ## res <- unlist(do.call(GRangesList, grl))a
     res <- unlist(do.call(GRangesList, do.call(c, grl)))
     values(res)$type <- "gaps"
     res <- resize(res, width = width(res) + 2, fix = "center")
   }else{
     res <- GRanges()
   }
-  res
-}
+  res  
+})
+
 
 
 getIdeoGR <- function(gr){

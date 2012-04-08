@@ -101,13 +101,15 @@ exportMethods(transformToDf)
 ## utils
 exportMethods(addStepping, 
               shrinkageFun,
-              maxGap,
-              splitByFacets)
+              maxGap, 
+              splitByFacets,
+              getGaps)
 
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
        pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,
        showColor, isJunctionRead, isMatchedWithModel,
        flatGrl, getIdeoGR, getScale, getFormalNames, subsetArgsByFormals,
        parseArgsForAes, parseArgsForNonAes, strip_formula_dots)
+
 
 ## exportPattern("^[^\\.]")
