@@ -19,7 +19,7 @@ getScale(gr, unit = NULL, n = 100, type = c("M", "B", "sci"))
   \item{n}{
     Integer value to indicate how many scale ticks to make.
   }
-  \item{
+  \item{type}{
     unit types to shown.
   }
 }

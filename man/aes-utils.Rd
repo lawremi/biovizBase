@@ -3,7 +3,7 @@
 \alias{parseArgsForNonAes}
 \title{Utils for parsing (un)evaluated arguments}
 \description{
-  
+  Utilities for parsing (un)evaluated arguments
 }
 \usage{
 parseArgsForAes(args)

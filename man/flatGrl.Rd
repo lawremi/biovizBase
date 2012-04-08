@@ -12,8 +12,8 @@ flatGrl(object, indName = "grl_name")
     a \code{GRangesList} object.
   }
   \item{indName}{
-    column named by ‘indName’ that groups the records by their
-    original element in ‘object’.
+    column named by 'indName' that groups the records by their
+    original element in 'object'.
   }
 }
 \value{

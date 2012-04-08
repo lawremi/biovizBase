@@ -1,16 +1,18 @@
 \name{transformtoGenome}
-\alias{transformtoGenome}
+\alias{transformToGenome}
 \alias{transformToCircle}
 \alias{transformToRectInCircle}
 \alias{transformToBarInCircle}
 \alias{transformToSegInCircle}
 \alias{transformToLinkInCircle}
 \alias{transformDfToGr}
+\alias{transformToDf}
 \alias{transformToDf-method}
 \alias{transformToDf,GRanges-method}
 \title{Transform GRanges to genome coordinates and circular layout}
 \description{
-  
+  Used for coordiante genome transformation, other transformation in
+  circular view.
 }
 \usage{
 transformToGenome(data, space.skip = 0.1)
@@ -116,7 +118,7 @@ gr2 <- GRanges("chr2", IRanges(start = as.integer(runif(20, 1, 100)),
 width = 5))
 gr <- c(gr1, gr2)
 gr.t <- transformToGenome(gr, space.skip = 1)
-transformToCircle(gr)
+transformToCircle(gr.t)
 transformToRectInCircle(gr)
 transformToBarInCircle(gr)
 transformToSegInCircle(gr)

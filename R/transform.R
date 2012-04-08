@@ -42,7 +42,6 @@ transformToGenome <- function(data, space.skip = 0.1){
 transformToCircle <- function(data, x = NULL, y = NULL,
                       radius = 10, trackWidth =10, direction = c("clockwise", "anticlockwise"),
                       mul = 0.05){
-
   if(!".midpoint" %in% colnames(values(data)))
     values(data)$.midpoint <- start(data) + width(data)/2
   if(!length(y)){
@@ -66,9 +65,8 @@ transformToCircle <- function(data, x = NULL, y = NULL,
   if(is.numeric(y)){
     temp.y <- y
   }
-  
   temp.y.r <- expand_range(range(temp.y), mul = mul)
-  temp.y <- (temp.y - min(temp.y.r))/diff(temp.y.r) * width + radius
+  temp.y <- (temp.y - min(temp.y.r))/diff(temp.y.r) * trackWidth + radius
   
   ## always from 1 to max
   direction <- match.arg(direction)
@@ -269,44 +267,44 @@ transformToLinkInCircle <- function(data, linked.to, space.skip = 0.1, trackWidt
 }
 
 
-ddplyFun <- function(data, .fun, ..., window = 1e5){
-  grl <- split(data, seqnames(data))
-  idx <- elementLengths(grl) > 0
-  grl <- endoapply(grl[idx], function(gr){
-    ## let's make it more works for multiple seqnames
-    bks <- seq(1, max(end(gr)), by = window)
-    N <- length(bks)
-    seqn <- unique(seqnames(gr))
-    if(length(seq) > 1)
-      stop("Multiple seqnames found")
-    if(!N%%2){
-      qgr <- GRanges(seqn, IRanges(start = bks[1:(N-1)],
-                                   end = bks[2:N]))
-    }else{
-      bks <- c(bks, max(end(gr)))
-      N <- length(bks)
-      qgr <- GRanges(seqn, IRanges(start = bks[1:(N-1)],
-                                   end = bks[2:N]))
-    }
-    if(max(end(qgr)) < max(end(gr))){
-      qgr <- c(qgr, GRanges(seqn, IRanges(max(end(qgr))+ 1,
-                                          max(end(gr)))))
-    }
-    of <- findOverlaps(gr, qgr, select = "first")
-    idx <- !is.na(of)
-    df <- as.data.frame(gr[idx])
-    df$of <- of[idx]
-    resdf <- plyr::ddply(df, .(of), .fun, ...)
-    idx <- as.numeric(resdf$of)
-    ## idx <- idx[!is.na(idx)]
-    res <- qgr[idx]
-    values(res) <- as.data.frame(resdf[,2])
-    res
-  })
-  res <- unlist(grl[!is.null(grl)])
-  names(res) <- NULL
-  sort(res)
-}
+## ddplyFun <- function(data, .fun, ..., window = 1e5){
+##   grl <- split(data, seqnames(data))
+##   idx <- elementLengths(grl) > 0
+##   grl <- endoapply(grl[idx], function(gr){
+##     ## let's make it more works for multiple seqnames
+##     bks <- seq(1, max(end(gr)), by = window)
+##     N <- length(bks)
+##     seqn <- unique(seqnames(gr))
+##     if(length(seq) > 1)
+##       stop("Multiple seqnames found")
+##     if(!N%%2){
+##       qgr <- GRanges(seqn, IRanges(start = bks[1:(N-1)],
+##                                    end = bks[2:N]))
+##     }else{
+##       bks <- c(bks, max(end(gr)))
+##       N <- length(bks)
+##       qgr <- GRanges(seqn, IRanges(start = bks[1:(N-1)],
+##                                    end = bks[2:N]))
+##     }
+##     if(max(end(qgr)) < max(end(gr))){
+##       qgr <- c(qgr, GRanges(seqn, IRanges(max(end(qgr))+ 1,
+##                                           max(end(gr)))))
+##     }
+##     of <- findOverlaps(gr, qgr, select = "first")
+##     idx <- !is.na(of)
+##     df <- as.data.frame(gr[idx])
+##     df$of <- of[idx]
+##     resdf <- plyr::ddply(df, .(of), .fun, ...)
+##     idx <- as.numeric(resdf$of)
+##     ## idx <- idx[!is.na(idx)]
+##     res <- qgr[idx]
+##     values(res) <- as.data.frame(resdf[,2])
+##     res
+##   })
+##   res <- unlist(grl[!is.null(grl)])
+##   names(res) <- NULL
+##   sort(res)
+## }
 
 setGeneric("transformToDf", function(data, ...) standardGeneric("transformToDf"))
 
