@@ -20,7 +20,7 @@ object}
 \docType{methods}
 \alias{shrinkageFun,GenomicRanges-method}
 \alias{shrinkageFun,IRanges-method}
-\author{Tengfei Yin}
+\author{Michael Lawrence, Tengfei Yin}
 \arguments{\item{obj}{GenomicRanges object which represent gaps}
 \item{max.gap}{Gaps to be kept, it's a fixed value, if this value
 is bigger than certain gap interval, then that gap is not going to
