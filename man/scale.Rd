@@ -4,10 +4,10 @@
 \title{get x scale breaks and labels}
 \description{
   get x scale breaks and labels for GRanges with different
-  coordintes(currently only "truncate_gaps" supported).
+  coordintes(currently only "truncate_gaps" and "genome" supported).
 }
 \usage{
- \S4method{getXScale}{GRanges}(obj, type = c("twoend", "all", "left", "right"))
+ \S4method{getXScale}{GRanges}(obj, type = c("default", "all", "left", "right"))
 }
 \arguments{
   \item{obj}{
@@ -29,6 +29,15 @@ shrink.fun1 <- shrinkageFun(gaps(gr1), max.gap = maxGap(gaps(gr1), 0.15))
 shrink.fun2 <- shrinkageFun(gaps(gr1), max.gap = 0)
 s1 <- shrink.fun1(gr1)
 getXScale(s1)
+#  coord:genome
+set.seed(1)
+gr1 <- GRanges("chr1", IRanges(start = as.integer(runif(20, 1, 100)),
+width = 5))
+gr2 <- GRanges("chr2", IRanges(start = as.integer(runif(20, 1, 100)),
+width = 5))
+gr <- c(gr1, gr2)
+gr.t <- transformToGenome(gr, space.skip = 1)
+getXScale(gr.t)
 }
 \author{Tengfei Yin}
 

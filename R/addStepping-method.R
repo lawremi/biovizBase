@@ -12,14 +12,14 @@ setMethod("addStepping",c("GenomicRanges"),function(obj, group.name, extend.size
   lv <- endoapply(obj.lst,function(x){
     if(!is.null(group.name)){
       if(!group.selfish){
-      x.n <- split(x, values(x)[,group.name])
-      irs <- unlist(range(ranges(x.n, ignore.strand = TRUE)))
-      irs.new <- resize(irs, fix = "center", width = width(irs) + extend.size)
-      irs.new <- sort(irs.new)
-      .lvs <- disjointBins(irs.new)
-      values(x)$stepping <- .lvs[as.character(values(x)[,group.name])]
-      x
-    }else{
+        x.n <- split(x, values(x)[,group.name])
+        irs <- unlist(range(ranges(x.n, ignore.strand = TRUE)))
+        irs.new <- resize(irs, fix = "center", width = width(irs) + extend.size)
+        irs.new <- sort(irs.new)
+        .lvs <- disjointBins(irs.new)
+        values(x)$stepping <- .lvs[as.character(values(x)[,group.name])]
+        x
+      }else{
       values(x)$stepping <- as.numeric(as.factor(values(x)[,group.name]))
       x
     }

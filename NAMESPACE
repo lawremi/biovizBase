@@ -6,8 +6,8 @@ useDynLib(biovizBase, .registration=TRUE)
 ## methods
 import(methods)
 ## BiocGenerics
-importFrom(BiocGenerics, cbind, rbind, unique,
-           lapply, sapply, setdiff, Reduce)
+import(BiocGenerics)
+
 ## importFrom(BiocGenerics, cbind, rbind)
 ## RColorBrewer
 import(RColorBrewer)
@@ -30,7 +30,7 @@ importFrom(IRanges, IRanges,  disjointBins,
            ## runValue, runLength,
            reduce, punion, pgap, gaps)
 
-importMethodsFrom(IRanges,  split, sort,
+importMethodsFrom(IRanges,  split, sort, as.factor,
                   unlist,
                   as.data.frame,
                   length,

@@ -6,7 +6,7 @@ transformToGenome <- function(data, space.skip = 0.1){
     seqs.suml <- sum(as.numeric(seqs.l))
   }else{
     ## if no seqlengths are found, use data range
-    chr.l <- max(end(split(data, as.character(seqnames(data)))))
+    chr.l <- max(end(split(data, seqnames(data))))
     seqs.suml <- sum(as.numeric(chr.l))
   }
   chr.l.back <- chr.l
@@ -17,7 +17,6 @@ transformToGenome <- function(data, space.skip = 0.1){
   chr.l <- cumsum(as.numeric(chr.l))
   chr.l2 <- c(0, chr.l[-length(chr.l)])
   names(chr.l2) <- nms
-  
   sts.new <- start(data) + skps[as.character(seqnames(data))] +
     chr.l2[as.character(seqnames(data))]
   ed.new <- end(data) + skps[as.character(seqnames(data))] +
@@ -25,6 +24,7 @@ transformToGenome <- function(data, space.skip = 0.1){
 
   gr.new <- GRanges("genome", IRanges(sts.new, ed.new),
                     strand = strand(data))
+  
   values(gr.new) <- values(data)
   values(data) <- NULL
   values(gr.new)$.ori <- data
