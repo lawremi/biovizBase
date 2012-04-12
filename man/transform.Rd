@@ -39,7 +39,11 @@ transformToLinkInCircle(data, linked.to, space.skip = 0.1, trackWidth = 10, radi
                       direction = c("clockwise", "anticlockwise"))
 
 transformDfToGr(data, seqnames = NULL, start = NULL, end = NULL,
-                           width = NULL, strand = NULL)
+                            width = NULL, strand = NULL,
+                            to.seqnames = NULL, to.start = NULL, to.end = NULL,
+                            to.width = NULL, to.strand = NULL, linked.to
+                            = to.gr)
+
 
 
 \S4method{transformToDf}{GRanges}(data)
@@ -85,32 +89,54 @@ is_coord_genome(data)
     integer value, control interpolated points numbers.
   }
   \item{linked.to}{
-    a \code{GRanges} object, indicate the linked line's end point. 
+    a column name of \code{GRanges} object, indicate the linked line's
+  end point which represented as a \code{GRanges} too.. 
   }
   \item{link.fun}{
     function used to generate linking lines.
   }
   \item{seqnames}{
-    character indicate variable mapped to seqnames, default \code{NULL}
+    character or integer values for column name or index indicate variable mapped to seqnames, default \code{NULL}
     use "seqnames".
   }
   \item{start}{
-    character indicate variable mapped to start, default \code{NULL}
+    character or integer values for column name or index indicate variable mapped to start, default \code{NULL}
     use "start".
   }
   \item{end}{
-    character indicate variable mapped to end, default \code{NULL}
+    character or integer values for column name or index indicate variable mapped to end, default \code{NULL}
   use "end".
-    
   }
   \item{width}{
-    character indicate variable mapped to width, default \code{NULL}
+    character or integer values for column name or index indicate variable mapped to width, default \code{NULL}
   use "width".
     
   }
   \item{strand}{
-    character indicate variable mapped to strand, default \code{NULL}
+    character or integer values for column name or index indicate variable mapped to strand, default \code{NULL}
     use "strand".
+  }
+  \item{to.seqnames}{
+    character or integer values for column name or index indicate variable mapped to linked seqnames, default
+  \code{NULL}, create GRanges without new GRanges attached as column. If
+  this varialbe is not \code{NULL}, this mean you try to parse linked
+  \code{GRanges} object.
+  }
+  \item{to.start}{
+    character or integer values for column name or index indicate variable mapped to start of linked GRanges, default \code{NULL}
+    use "to.start".
+  }
+  \item{to.end}{
+    character or integer values for column name or index indicate variable mapped to end of linked GRanges, default \code{NULL}
+    use "to.end".
+  }
+  \item{to.width}{
+    character or integer values for column name or index indicate variable mapped to width of linked GRanges, default \code{NULL}
+    use "to.width".
+  }
+  \item{to.strand}{
+    character or integer values for column name or index indicate variable mapped to strand, default \code{NULL}
+    use "to.strand" or just use *.
   }
 }
 \value{

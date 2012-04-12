@@ -118,5 +118,8 @@ pileupGRangesAsVariantTable <- function(gr, genome,
   lst <- lapply(colnames(counts), variantsForBase)
   idx <- !sapply(lst, is.null)
   res <- do.call("c", lst[idx])  ## why this is slow
-  return(res[order(as.numeric(start(res)))])
+  if(length(res))
+    return(res[order(as.numeric(start(res)))])
+  else
+    GRanges()
 }

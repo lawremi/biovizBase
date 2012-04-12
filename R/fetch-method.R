@@ -130,9 +130,13 @@ fetch <- function(obj, which, ..., gene.id,
       })
       res <- do.call("c", lst)
       isActiveSeq(obj)[seqlevels(obj)] <- TRUE
-      res <- keepSeqlevels(res, unique(as.character(seqnames(res))))
+      if(length(res))
+        res <- keepSeqlevels(res, unique(as.character(seqnames(res))))
+      else
+        res <- GRanges()
     }
     if(type == "single"){
+      if(length(res)){
       cds.s <- reduce(res[values(res)$type == "cds"])
       values(cds.s)$type <- factor("cds")
       exon.s <- reduce(res[values(res)$type == "exon"])
@@ -143,6 +147,7 @@ fetch <- function(obj, which, ..., gene.id,
                     end = max(end(cds.s)))
       values(gap.s)$type <- factor("gap")
       res <- c(cds.s, utr.s, gap.s)
+    }
     }
     message("Done")
   }

@@ -361,9 +361,13 @@ setMethod("transformToDf", c("GRanges"), function(data){
 
 
 transformDfToGr <- function(data, seqnames = NULL, start = NULL, end = NULL,
-                           width = NULL, strand = NULL){
+                            width = NULL, strand = NULL,
+                            to.seqnames = NULL, to.start = NULL, to.end = NULL,
+                            to.width = NULL, to.strand = NULL,
+                            linked.to = "to.gr"){
 
 
+  
   ## this losing seqinfo....
   colnms <- colnames(data)
   if(is.null(seqnames)){
@@ -372,41 +376,77 @@ transformDfToGr <- function(data, seqnames = NULL, start = NULL, end = NULL,
     else
       stop("Please sepicify which column represent the seqnames")
   }
-
-  if(is.null(start)){
-    if("start" %in% colnms)
-      start <- "start"
-    else
-      stop("Please sepicify which column represent the start")
+  if(length(c(start, end, width)) <2){
+    stop("Pleaase sepeicfy two of start/end/width")
   }
 
   if(is.null(end)){
     if("end" %in% colnms)
-      end <- "end"
-    else if(is.null(width)){
-      if("width" %in% colnms)
-        width <- "width"
-      else
-        stop("Must provide end or width column names")
-    }}
-  
-  if(is.null(width)){
-    if("width" %in% colnms)
-        width <- "width"
+      end <- data[,"end"]
+  }else{
+    end <- data[, end]
   }
 
-  if(!is.null(end))
-    gr <- GRanges(data[,seqnames], IRanges(start = data[,start], end = data[,end]))
-  else
-    gr <- GRanges(data[,seqnames], IRanges(start = data[,start], width = data[,width]))
+  if(is.null(start)){
+    if("start" %in% colnms)
+      start <- data[,"start"]
+  }else{
+    start <- data[, start]
+  }
 
+  if(is.null(width)){
+    if("width" %in% colnms)
+      width <- data[,"width"]
+  }else{
+    width <- data[, width]
+  }
+
+  gr <- GRanges(seqnames, IRanges(start = start, width = width, end = end))
   if(is.null(strand)){
     if("strand" %in% colnms){
-      strand <- "strand"
-    }}
-  strand(gr) <- data[,strand]
+      strand <- data[, "strand"]
+      strand(gr) <- strand
+    }}else{
+      strand(gr) <- data[, strand]
+    }
+
   values(gr) <- data[,!colnames(data) %in% c(start, end, width, seqnames, strand)]
+  ## linked ranges
+  if(!is.null(to.seqnames)){
+    message("try to creating a linked GRanges as column to.gr")
+    if(length(c(to.start, to.end, to.width)) > 1){
+      if(is.null(to.end)){
+        if("to.end" %in% colnms)
+          to.end <- data[,"to.end"]
+      }else{
+        to.end <- data[, to.end]
+      }
+
+      if(is.null(to.start)){
+        if("to.start" %in% colnms)
+          to.start <- data[,"to.start"]
+      }else{
+        to.start <- data[, to.start]
+      }
+
+      if(is.null(width)){
+        if("to.width" %in% colnms)
+          to.width <- data[,"to.width"]
+      }else{
+        to.width <- data[, to.width]
+      }
+      
+      to.gr <- GRanges(seqnames = data[,to.seqnames],
+                       IRanges(start = to.start,
+                               end = to.end,
+                               width = to.width))
+      if(!is.null(to.strand))
+        strand(to.gr) <- data[,to.strand]
+      values(gr)[,linked.to] <- to.gr
+    }
+  }
   gr
+  
 }
 
 check.integer <- function(x){
