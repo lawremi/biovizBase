@@ -16,7 +16,7 @@
   circular view.
 }
 \usage{
-transformToGenome(data, space.skip = 0.1)
+transformToGenome(data, space.skip = 0.1, maxSize = 1e9)
 
 transformToCircle(data, x = NULL, y = NULL,
                   radius = 10, trackWidth =10,
@@ -51,6 +51,12 @@ is_coord_genome(data)
     a \code{GRanges} object.
 
     for function \code{transformDfToGr} it's data.frame.
+  }
+  \item{maxSize}{
+    for the reason that integer limitation, longer integer values cannot
+    be constructed to a \code{GRanges} object, so this value set the
+  limits on the whole genome space, if it is over this limits, we will
+  rescale the ranges for you.
   }
   \item{x}{
     character for variable as x axis used for transformation.
@@ -115,12 +121,12 @@ is_coord_genome(data)
 \examples{
 library(GenomicRanges)
 set.seed(1)
-gr1 <- GRanges("chr1", IRanges(start = as.integer(runif(20, 1, 100)),
+gr1 <- GRanges("chr1", IRanges(start = as.integer(runif(20, 1, 2e9)),
 width = 5))
-gr2 <- GRanges("chr2", IRanges(start = as.integer(runif(20, 1, 100)),
+gr2 <- GRanges("chr2", IRanges(start = as.integer(runif(20, 1, 2e9)),
 width = 5))
 gr <- c(gr1, gr2)
-gr.t <- transformToGenome(gr, space.skip = 1)
+gr.t <- transformToGenome(gr, space.skip = 0.1)
 is_coord_genome(gr.t)
 transformToCircle(gr.t)
 transformToRectInCircle(gr)

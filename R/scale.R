@@ -33,15 +33,15 @@ setMethod("getXScale", "GRanges", function(obj, type = c("default",
     message("using coord:genome to parse x scale")
     res <- switch(type,
                   default = {
-                    grl <- split(obj, seqnames(values(obj)$.ori))
-                    res <- lapply(grl, function(gr){
-                      mid <- (min(start(gr)) + max(end(gr)))/2
-                      seqs <- unique(as.character(seqnames(values(gr)$.ori)))
-                      df <- data.frame(breaks = mid, labels = seqs)
-                    })
-                    res <- do.call(rbind, res)
-                    list(breaks = res$breaks,
-                         labels = res$labels)
+                      grl <- split(obj, seqnames(values(obj)$.ori))
+                      res <- lapply(grl, function(gr){
+                        mid <- (min(start(gr)) + max(end(gr)))/2
+                        seqs <- unique(as.character(seqnames(values(gr)$.ori)))
+                        df <- data.frame(breaks = mid, labels = seqs)
+                      })
+                      res <- do.call(rbind, res)
+                      list(breaks = res$breaks,
+                           labels = res$labels)
                   })
   }else{
     stop("coord other than truncate_gaps are not suported for getXScale yet")

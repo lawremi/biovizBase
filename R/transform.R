@@ -1,4 +1,4 @@
-transformToGenome <- function(data, space.skip = 0.1){
+transformToGenome <- function(data, space.skip = 0.1, maxSize = 1e9){
   data <- sort(data)
   seqs.l <- seqlengths(data)
   if(all(!is.na(seqs.l))){
@@ -11,7 +11,7 @@ transformToGenome <- function(data, space.skip = 0.1){
   }
   chr.l.back <- chr.l
   space.skip <- space.skip * seqs.suml
-  skps <- space.skip * ((1:length(seqs.l)))
+  skps <- space.skip * ((1:length(seqs.l))-1)
   names(skps) <- names(seqlengths(data))
   nms <- names(chr.l)
   chr.l <- cumsum(as.numeric(chr.l))
@@ -21,19 +21,36 @@ transformToGenome <- function(data, space.skip = 0.1){
     chr.l2[as.character(seqnames(data))]
   ed.new <- end(data) + skps[as.character(seqnames(data))] +
     chr.l2[as.character(seqnames(data))]
-
-  gr.new <- GRanges("genome", IRanges(sts.new, ed.new),
-                    strand = strand(data))
-  
-  values(gr.new) <- values(data)
-  values(data) <- NULL
-  values(gr.new)$.ori <- data
-  max.chr <- rev(names(chr.l2))[1]
-  x.max <- chr.l.back[max.chr] + skps[max.chr] + chr.l2[max.chr]
-  names(x.max) <- "genome"
-  seqlengths(gr.new) <- x.max
+  if(max(ed.new) < maxSize){
+    gr.new <- GRanges("genome", IRanges(sts.new, ed.new),
+                      strand = strand(data))
+    
+    values(gr.new) <- values(data)
+    values(data) <- NULL
+    values(gr.new)$.ori <- data
+    max.chr <- rev(names(chr.l2))[1]
+    x.max <- chr.l.back[max.chr] + skps[max.chr] + chr.l2[max.chr]
+    names(x.max) <- "genome"
+    seqlengths(gr.new) <- x.max
+    metadata(gr.new)$is.maxSized <- FALSE
+  }else{
+    max.chr <- rev(names(chr.l2))[1]
+    x.max <- chr.l.back[max.chr] + skps[max.chr] + chr.l2[max.chr] + space.skip
+    .v <- rescale(c(x.max, sts.new, ed.new), to = c(1, maxSize))
+    N <- length(.v) - 1
+    gr.new <- GRanges("genome", IRanges(.v[-1][1:(N/2)], .v[-1][(N/2+1):N]),
+                      strand = strand(data))
+    values(gr.new) <- values(data)
+    values(data) <- NULL
+    values(gr.new)$.ori <- data
+    x.max <- maxSize
+    names(x.max) <- "genome"
+    seqlengths(gr.new) <- maxSize
+    metadata(gr.new)$is.maxSized <- TRUE    
+  }
   metadata(gr.new)$space.skip <- space.skip
   metadata(gr.new)$coord <- "genome"
+  metadata(gr.new)$maxSize <- maxSize
   gr.new
 }
 
@@ -85,7 +102,7 @@ transformToCircle <- function(data, x = NULL, y = NULL,
   else
     dir <- -1
   ## need to use max of "ideo"
-  if(!is.null(metadata(data)$transformed) && metadata(data)$transformed){
+  if(is_coord_genome(data)){
     x.max <- seqlengths(data)
   }else{
     x.max <- max(end(data))
@@ -386,9 +403,8 @@ transformDfToGr <- function(data, seqnames = NULL, start = NULL, end = NULL,
   if(is.null(strand)){
     if("strand" %in% colnms){
       strand <- "strand"
-      strand(gr) <- data[,strand]
-    }
-  }
+    }}
+  strand(gr) <- data[,strand]
   values(gr) <- data[,!colnames(data) %in% c(start, end, width, seqnames, strand)]
   gr
 }
