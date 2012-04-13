@@ -453,3 +453,24 @@ check.integer <- function(x){
   sapply(x, function(x)
     !length(grep("[^[:digit:]]", as.character(x))))
 }
+
+
+## retrun a new GRanges, with new coord
+transformGRangesForEvenSpace <- function(gr){
+  st <- start(range(gr))
+  ed <- end(range(gr))
+  wd <- width(range(gr))
+  N <- length(gr)
+  wid <- wd/N
+  x.new <- st + wid/2 + (1:N - 1) * wid
+  values(gr)$x.new <- x.new
+  metagr(gr)$coord <- "even"
+  gr
+}
+
+
+
+
+
+
+

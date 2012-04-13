@@ -95,7 +95,8 @@ export(transformToGenome,
        transformToBarInCircle,
        transformToSegInCircle,
        transformToLinkInCircle,
-       transformDfToGr)
+       transformDfToGr,
+       transformGRangesForEvenSpace)
 exportMethods(transformToDf)
 
 ## utils
