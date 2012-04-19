@@ -24,7 +24,6 @@ fetch <- function(obj, which, ..., gene.id,
   if(is(obj, "TranscriptDb")){
     if(!(type %in% .txdb.type))
       stop("type for TranscriptDb must be ", .txdb.type)
-    require(GenomicFeatures)
     if(is.list(which)){
       message("Parsing exons based on which(list) arguments")
       temp <- exons(obj, vals = which, columns = columns)
@@ -160,26 +159,11 @@ fetch <- function(obj, which, ..., gene.id,
       stop("No entry in the GappedAlignments data")
     if(is.null(names(obj)))
       stop("Missing qname, please make use.name = TRUE, when reading GappedAlignments")
-
     grg <- grglist(obj)
-    grg.u <- unlist(grg)
-    ## right way..
-    values(grg.u)$qname <- rep(names(grg), times = elementLengths(grg))
-    ## values(grg.u)$qname <- names(grg)
-    ## message("extracting information...")
-    ## values(grg.u)$read.group <- rep(1:length(grg), times = elementLengths(grg))
-    values(grg.u)$junction <- rep(ifelse(elementLengths(grg)>1, TRUE,
-                                         FALSE),
+    grg.u <- stack(grg, ".grl.name")
+    message("extracting information...")
+    values(grg.u)$junction <- rep(ifelse(elementLengths(grg)>1, TRUE, FALSE),
                                   times = elementLengths(grg))
-    ## grl <- split(grg.u, values(grg.u)$qname)
-    ## irs <- unlist(range(ranges(grl)))
-    ## length(obj)
-    ## sort based on junction first
-    if(include.level)
-      grg.u <- addStepping(grg.u, group.name = "qname")
-      ## values(grg.u)$.levels <- rep(disjointBins(irs), times = elementLengths(grl))
-    ## seqlevels(grg.u) <- unique(as.character(seqnames(grg.u)))
-    grg.u <- keepSeqlevels(grg.u, unique(as.character(seqnames(grg.u))))
     names(grg.u) <- NULL
     res <- grg.u
   }

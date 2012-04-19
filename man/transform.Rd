@@ -1,5 +1,9 @@
-\name{transformtoGenome}
+\name{transformToGenome}
 \alias{transformToGenome}
+\alias{transformToGenome,GRanges-method}
+\alias{transformToGenome,GRangesList-method}
+\alias{transformToArch}
+\alias{transformToArch,GRanges-method}
 \alias{transformToCircle}
 \alias{transformToRectInCircle}
 \alias{transformToBarInCircle}
@@ -16,23 +20,27 @@
   circular view.
 }
 \usage{
-transformToGenome(data, space.skip = 0.1, maxSize = 1e9)
+\S4method{transformToGenome}{GRanges}(data, space.skip = 0.1)
+\S4method{transformToGenome}{GRangesList}(data, space.skip = 0.1)
 
+\S4method{transformToArch}{GRanges}(data, width = 1)
 transformToCircle(data, x = NULL, y = NULL,
                   radius = 10, trackWidth =10,
                   direction = c("clockwise", "anticlockwise"),
                    mul = 0.05)
 
+
 transformToRectInCircle(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
                       direction = c("clockwise", "anticlockwise"),
-                      n = 5, mul = 0.05)
+                      n = 100, mul = 0.05)
 
 transformToBarInCircle(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
-                     direction = c("clockwise", "anticlockwise"))
+                     direction = c("clockwise", "anticlockwise"),
+                      n = 100, mul = 0.05)
 
 transformToSegInCircle(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
-                      direction = c("clockwise", "anticlockwise"), n =
-                    5)
+                      direction = c("clockwise", "anticlockwise"), n = 100)
+
 
 transformToLinkInCircle(data, linked.to, space.skip = 0.1, trackWidth = 10, radius = 10,
                       link.fun = function(x, y, n = 100) bezier(x, y, evaluation = n),
@@ -55,12 +63,6 @@ is_coord_genome(data)
     a \code{GRanges} object.
 
     for function \code{transformDfToGr} it's data.frame.
-  }
-  \item{maxSize}{
-    for the reason that integer limitation, longer integer values cannot
-    be constructed to a \code{GRanges} object, so this value set the
-  limits on the whole genome space, if it is over this limits, we will
-  rescale the ranges for you.
   }
   \item{x}{
     character for variable as x axis used for transformation.
@@ -145,6 +147,7 @@ is_coord_genome(data)
   position, ".circle.angle" for transformed angle.
 }
 \examples{
+library(biovizBase)
 library(GenomicRanges)
 set.seed(1)
 gr1 <- GRanges("chr1", IRanges(start = as.integer(runif(20, 1, 2e9)),
@@ -156,7 +159,6 @@ gr.t <- transformToGenome(gr, space.skip = 0.1)
 is_coord_genome(gr.t)
 transformToCircle(gr.t)
 transformToRectInCircle(gr)
-transformToBarInCircle(gr)
 transformToSegInCircle(gr)
 values(gr1)$to.gr <- gr2
 transformToLinkInCircle(gr1, linked.to = "to.gr")

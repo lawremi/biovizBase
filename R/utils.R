@@ -128,45 +128,37 @@ genSymbols <- function(org){
 
 setGeneric("getGaps", function(obj, ...) standardGeneric("getGaps"))
 setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
-if(!length(facets))
+  if(!length(facets))
     facets <- as.formula(~seqnames)
   allvars <- all.vars(as.formula(facets))
   allvars.extra <- allvars[!allvars %in% c(".", "seqnames")]
-if(!group.name %in% colnames(values(obj)))
-  stop(group.name, " is not in obj")
-  grl <- splitByFacets(obj, facets)  
-  grl <- lapply(grl, function(dt){
-      res <- split(dt, values(dt)[,group.name])
-      gps.lst <- lapply(res, function(x){
-      if(length(x) > 1){
-        gps <- gaps(ranges(x))
-        if(length(gps)){
-          seqs <- unique(as.character(seqnames(x)))
-          ir <- gps
-          gr <- GRanges(seqs, ir)
-          values(gr)[,"stepping"] <- unique(values(x)[,"stepping"])
-          values(gr)[,allvars.extra] <- rep(unique(values(x)[, allvars.extra]),
-                                            length(gr))
-          
-          gr
-        }else{
-          NULL
-        }}else{
-          NULL
-        }
-    })
-      idx <- which(!unlist(lapply(gps.lst, is.null)))
-      gps <- do.call(c, gps.lst[idx])
+  if(!group.name %in% colnames(values(obj)))
+    stop(group.name, " is not in obj")
+  grl <- splitByFacets(obj, facets)
+  grl <- endoapply(grl, function(dt){
+    res <- split(dt, values(dt)[,group.name])
+    gps <- gaps(ranges(res))
+    idx <- elementLengths(gps) > 0
+    res.sub <- res[idx,]
+    gps.sub <- gps[idx,]
+    dfs <- values(unlist(res.sub))[cumsum(elementLengths(res.sub)),c(allvars.extra, "stepping"),
+                                   drop = FALSE]
+
+    ir <- unlist(gps.sub)
+    if(length(ir)){
+      gr <- GRanges(unique(seqnames(dt)), ir)
+      values(gr) <- dfs[togroup(gps.sub),,drop = FALSE]
+    }else{
+      gr <- GRanges()
+    }
+    gr
   })
-  grl <- grl[!unlist(lapply(grl, is.null))]
-  ## grl
-  if(length(grl)){
-    ## res <- unlist(do.call(GRangesList, grl))a
-    res <- unlist(do.call(GRangesList, do.call(c, grl)))
+  res <- unlist(grl)
+  if(length(res)){
     values(res)$type <- "gaps"
     res <- resize(res, width = width(res) + 2, fix = "center")
   }else{
-    res <- GRanges()
+    GRanges()
   }
   res  
 })
@@ -179,7 +171,7 @@ getIdeoGR <- function(gr){
   if(all(is.na(seqlengths(gr)))){
     warning("geom(ideogram) need valid seqlengths information for accurate mapping,
                  now use reduced information as ideogram... ")
-    res <- reduce(gr, ignore = TRUE)
+    res <- range(reduce(gr, ignore = TRUE))
     start(res) <- 1
     res
   }else{
@@ -230,57 +222,6 @@ getScale <- function(gr, unit = NULL, n = 100, type = c("M", "B", "sci")){
   res
 }
 
-getNR <- function(x, type = c("NUSE", "RLE"),range = 0, ...){
-  require(affyPLM)
-  compute.nuse <- function(which) {
-    nuse <- apply(x@weights[[1]][which, ], 2, sum)
-    1/sqrt(nuse)
-  }
-
-  type <- match.arg(type)
-  model <- x@model.description$modelsettings$model
-
-  if (type == "NUSE") {
-    if (x@model.description$R.model$which.parameter.types[3] == 
-        1 & x@model.description$R.model$which.parameter.types[1] == 
-        0) {
-      grp.rma.se1.median <- apply(se(x), 1, median, 
-                                  na.rm = TRUE)
-      res <- grp.rma.rel.se1.mtx <- sweep(se(x), 1, grp.rma.se1.median, 
-                                          FUN = "/")
-
-    }
-    else {
-      which <- indexProbesProcessed(x)
-      ses <- matrix(0, length(which), 4)
-      if (x@model.description$R.model$response.variable == 
-          1) {
-        for (i in 1:length(which)) ses[i, ] <- compute.nuse(which[[i]])
-      }
-      else {
-        stop("Sorry I can't currently impute NUSE values for this PLMset object")
-      }
-      grp.rma.se1.median <- apply(ses, 1, median)
-      res <- grp.rma.rel.se1.mtx <- sweep(ses, 1, grp.rma.se1.median, 
-                                          FUN = "/")
-      
-    }
-  }
-  if(type == "RLE"){
-    if (x@model.description$R.model$which.parameter.types[3] == 
-        1) {
-      medianchip <- apply(coefs(x), 1, median)
-      res <- sweep(coefs(x), 1, medianchip, FUN = "-")
-    }
-    else {
-      stop("It doesn't appear that a model with sample effects was used.")
-    }  
-  }
-  res
-}
-
-
-
 getFormalNames <- function(..., remove.dots = TRUE){
   res <- lapply(list(...), function(fun){
     if(is.function(fun)){
@@ -310,3 +251,12 @@ flatGrl <- function(object, indName = "grl_name"){
   values(gr) <-   cbind(values(gr), values(object)[idx,,drop = FALSE])
   gr
 }
+
+
+## test heterogeneity
+is_homo <- function(grl){
+  all(unlist(lapply(grl, function(gr){
+    length(unique(as.character(seqnames(gr)))) == 1
+  })))
+}
+

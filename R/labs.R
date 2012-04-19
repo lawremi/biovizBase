@@ -12,3 +12,32 @@ setMethod("getYLab", "TranscriptDb", function(obj){
   }
   lb
 })
+
+## going to be moved to biovizBase
+setGeneric("getXLab", function(obj,...) standardGeneric("getXLab"))
+setMethod("getXLab", "GRanges", function(obj){
+  chrs <- unique(as.character(seqnames(obj)))
+  gms <- genome(obj)
+  gm <- gms[chrs]
+  xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)),
+                collapse = ",")
+  xlab
+})
+
+setMethod("getXLab", "GRangesList", function(obj){
+  chrs <- unique(as.character(seqnames(unlist(obj))))
+  gms <- genome(obj)
+  gm <- gms[chrs]
+  xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)),
+                collapse = ",")
+  xlab
+})
+
+setMethod("getXLab", "GappedAlignments", function(obj){
+  chrs <- unique(as.character(seqnames(obj)))
+  gms <- genome(obj)
+  gm <- gms[chrs]
+  xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)),
+                collapse = ",")
+  xlab
+})

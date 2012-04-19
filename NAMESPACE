@@ -69,7 +69,13 @@ importFrom(Rsamtools, index, scanBamFlag, PileupFiles,
 importMethodsFrom(Rsamtools, path, ScanBamParam,
                  applyPileups, scanBam, readBamGappedAlignments)
 
+## GenomicFeatures
 importClassesFrom(GenomicFeatures,TranscriptDb)
+importFrom(GenomicFeatures, transcripts, exons, cds,
+           exonsBy, cdsBy, 
+           exonsByOverlaps, transcriptsBy)
+importMethodsFrom(GenomicFeatures, isActiveSeq, "isActiveSeq<-")
+
 
 ## ======================================================================
 ##    export
@@ -89,15 +95,14 @@ export(getBioColor,
 
 
 ## transform
-export(transformToGenome,
-       transformToCircle,
+export(transformToCircle,
        transformToRectInCircle,
        transformToBarInCircle,
        transformToSegInCircle,
        transformToLinkInCircle,
        transformDfToGr,
        transformGRangesForEvenSpace)
-exportMethods(transformToDf)
+exportMethods(transformToGenome,transformToDf)
 
 ## utils
 exportMethods(addStepping, 
@@ -106,7 +111,8 @@ exportMethods(addStepping,
               splitByFacets,
               getGaps,
               getXScale,
-              getYLab)
+              getYLab,
+              getXLab)
 
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
        pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,
