@@ -140,6 +140,7 @@ setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
     gps <- gaps(ranges(res))
     idx <- elementLengths(gps) > 0
     res.sub <- res[idx,]
+    stds <- unlist(lapply(res.sub, function(x) as.character(strand(x))[1]))
     gps.sub <- gps[idx,]
     dfs <- values(unlist(res.sub))[cumsum(elementLengths(res.sub)),c(allvars.extra, "stepping"),
                                    drop = FALSE]
@@ -148,6 +149,7 @@ setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
     if(length(ir)){
       gr <- GRanges(unique(seqnames(dt)), ir)
       values(gr) <- dfs[togroup(gps.sub),,drop = FALSE]
+      strand(gr) <- stds[togroup(gps.sub)]
     }else{
       gr <- GRanges()
     }
