@@ -241,4 +241,3 @@ scanBamGRanges <- function(file, which, ...){
 }
 
 
-

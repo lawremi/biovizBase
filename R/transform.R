@@ -600,3 +600,28 @@ setMethod("transformToArch", "GRangesList", function(data, width = 1){
   metadata(res)$coord <- coord
   res
 })
+
+## ## coord
+## library(GenomicRanges)
+## gr1 <- GRanges("chr1", IRanges(start = 1:10, width = 5))
+## gr2 <- GRanges("chr1", IRanges(start = 100:110, width = 5))
+## gr3 <- GRanges("chr1", IRanges(start = 200:210, width = 5))
+## grl <- GenomicRangesList(gr1, gr2, gr3)
+
+
+## setGeneric("transformToOrigin", function(data, ...) standardGeneric("transformToOrigin"))
+## setMethod("transformToOrigin", "GRanges", function(data, ...){
+##   ori <- metadata(gr)$origin
+##   if(is.null(ori))
+##     ori <- 1
+##   values(gr)$.ori <- data
+##   metadata(gr)$coord <- "even"
+## })
+
+## setMethod("transformToOrigin", "GenomicRangesList", function(data, ...){
+  
+##   values(gr)$.ori <- data
+##   metadata(gr)$coord <- "even"
+## })
+
+
