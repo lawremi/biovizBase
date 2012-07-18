@@ -20,6 +20,7 @@ importFrom(Hmisc, bezier)
 importFrom(IRanges, IRanges,  disjointBins,
            matchMatrix, findOverlaps, subsetByOverlaps,
            "elementMetadata", "elementMetadata<-",
+           metadata, "metadata<-",
            start, width, end,  resize, 
            "values", "values<-",
            ranges, "ranges<-", 
