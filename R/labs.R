@@ -15,12 +15,17 @@ setMethod("getYLab", "TranscriptDb", function(obj){
 
 ## going to be moved to biovizBase
 setGeneric("getXLab", function(obj,...) standardGeneric("getXLab"))
+
 setMethod("getXLab", "GRanges", function(obj){
   chrs <- unique(as.character(seqnames(obj)))
   gms <- genome(obj)
   gm <- gms[chrs]
-  xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)),
-                collapse = ",")
+  if(length(chrs) > 1){
+    xlab <- "Position"
+  }else{
+    xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)))
+    xlab <- paste("Position on", xlab)
+  }
   xlab
 })
 
@@ -28,16 +33,26 @@ setMethod("getXLab", "GRangesList", function(obj){
   chrs <- unique(as.character(seqnames(unlist(obj))))
   gms <- genome(obj)
   gm <- gms[chrs]
-  xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)),
-                collapse = ",")
-  xlab
+  if(length(chrs) > 1){
+    xlab <- "Position"
+  }else{
+    xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)))
+    xlab <- paste("Position on", xlab)
+  }
+  xlab  
 })
 
 setMethod("getXLab", "GappedAlignments", function(obj){
   chrs <- unique(as.character(seqnames(obj)))
   gms <- genome(obj)
   gm <- gms[chrs]
-  xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)),
-                collapse = ",")
+  if(length(chrs) > 1){
+    xlab <- "Position"
+  }else{
+    xlab <- paste(ifelse(is.na(gm), chrs, paste0(gm, "::", chrs)))
+    xlab <- paste("Position on", xlab)
+  }
   xlab
 })
+
+
