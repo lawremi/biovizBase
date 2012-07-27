@@ -71,7 +71,7 @@ setMethod("spliceSummary", c("GenomicRanges", "GenomicRanges"), function(obj,
                                                                          model,
                                                                        model_id = NULL){
   ov <- findOverlaps(ranges(obj), ranges(model))
-  mm <- matchMatrix(ov)
+  mm <- as.matrix(ov)
   res <- split(mm[,2], mm[,1])
   idx <- unlist(lapply(split(mm[,2], mm[,1]),length)) > 1
   res <- lapply(res[idx], function(x){
