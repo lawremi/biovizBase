@@ -51,7 +51,7 @@ setMethod("estimateCoverage", "BamFile", function(x, maxBinSize = 2^14) {
                        off[,"end.uoffset"],
                        off[,"end.uoffset"] - off[,"start.uoffset"])
     ## sum bins with multiple chunks
-    off_diff <- rowsum(off_diff, off[,"bin"])
+    off_diff <- rowsum(as.numeric(off_diff), off[,"bin"])
     score <- numeric(NBIN)
     score[as.integer(rownames(off_diff)) + 1L] <- as.vector(off_diff)
     score[rep(BINSIZES, TOTALSIZE / BINSIZES) <= maxBinSize]
