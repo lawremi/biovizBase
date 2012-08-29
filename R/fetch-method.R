@@ -9,7 +9,6 @@ fetch <- function(obj, which, ..., gene.id,
                   columns = c("tx_id", "tx_name","gene_id"),
                   type = c("all", "single", "exons.reduce", "exons.all",
                     "exons.geneid",  "gapped.pair", "raw", "all")){
-
   .txdb.type <- c("all", "single", "exons.reduce",
                   "exons.all", "exons.geneid")
   .bamfile.type <- c("gapped.pair", "raw", "all")
@@ -101,10 +100,13 @@ fetch <- function(obj, which, ..., gene.id,
 
           cds_union <- reduce(cds.cur)
           utrs <- setdiff(exon_union, cds_union)
-          values(utrs) <- data.frame(tx_id = id,
-                                     tx_name = tx_nm,
-                                     gene_id = gene_id,
-                                     type = "utr")
+          if(length(utrs))
+            values(utrs) <- data.frame(tx_id = id,
+                                       tx_name = tx_nm,
+                                       gene_id = gene_id,
+                                       type = "utr")
+          else
+            utrs <- GRanges()
           ir.g2 <- gaps(reduce(c(ranges(cds_union), ranges(utrs))))
           if(length(ir.g2)){
             gaps.cur <- GRanges(seqs,ir.g2)
