@@ -165,6 +165,7 @@ transformToRectInCircle <- function(data, y = NULL, space.skip = 0.1,
   }else{
       values(data)$stepping <- disjointBins(data, ignore.strand = TRUE)
   }
+  names(data) <- NULL
   df <- as.data.frame(data)
 
   lst <- lapply(1:nrow(df), function(i){
@@ -220,6 +221,7 @@ transformToBarInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
       stop("please provide aes(y = ), or use 'score' as column")
     }
   }
+  names(data) <- NULL
   df <- as.data.frame(data)
   lst <- lapply(1:nrow(df), function(i){
     if(df[i,"width"] > 1){
@@ -268,6 +270,7 @@ transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
   if(!length(y)){
     values(data)$stepping <- disjointBins(ranges(data))
   }
+  names(data) <- NULL
   df <- as.data.frame(data)
   lst <- lapply(1:nrow(df), function(i){
     if(df[i,"width"] > 1){
@@ -320,7 +323,8 @@ transformToLinkInCircle <- function(data, linked.to, space.skip = 0.1, trackWidt
   obj <- transformToGenome(data, space.skip)
   obj <- transformToCircle(obj, y = 0, radius = radius, trackWidth =trackWidth,
                    direction = direction)
-  obj <- obj[order(values(obj)$.biovizBase.idx)]  
+  obj <- obj[order(values(obj)$.biovizBase.idx)]
+  names(obj) <- NULL
   df <- as.data.frame(obj)
   linktodata <- values(data)[,linked.to]
   ## missing y
