@@ -15,7 +15,6 @@ setMethod("getYLab", "TranscriptDb", function(obj){
 
 ## going to be moved to biovizBase
 setGeneric("getXLab", function(obj,...) standardGeneric("getXLab"))
-
 setMethod("getXLab", "GRanges", function(obj){
   chrs <- unique(as.character(seqnames(obj)))
   gms <- genome(obj)
@@ -54,5 +53,4 @@ setMethod("getXLab", "GappedAlignments", function(obj){
   }
   xlab
 })
-
 
