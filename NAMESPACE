@@ -18,7 +18,7 @@ import(scales)
 importFrom(Hmisc, bezier)
 ## IRanges
 importFrom(IRanges, IRanges,  disjointBins,
-           matchMatrix, findOverlaps, subsetByOverlaps,
+           findOverlaps, subsetByOverlaps,
            "elementMetadata", "elementMetadata<-",
            metadata, "metadata<-",
            start, width, end,  resize, 
