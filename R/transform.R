@@ -86,7 +86,7 @@ rescaleGr <- function(gr, maxSize = 1e8){
 
 ## then need a transformation to circlular view
 ## data is a GRanges dataect
-transformToCircle <- function(data, x = NULL, y = NULL,
+transformToCircle <- function(data, x = NULL, y = NULL, ylim = NULL,
                       radius = 10, trackWidth =10, direction = c("clockwise", "anticlockwise"),
                       mul = 0.05){
 
@@ -105,7 +105,12 @@ transformToCircle <- function(data, x = NULL, y = NULL,
     if(x == "midpoint" & (!"midpoint" %in% colnames(values(data))))
       x <- ".midpoint"
   }
-    
+
+  if(length(ylim)){
+    idx <- values(data)[,y] <= max(ylim) & values(data)[,y] >= min(ylim)
+    data <- data[idx]
+  }
+  
   temp.x <- values(data)[,x] 
   
   if(is.character(y))
@@ -114,7 +119,11 @@ transformToCircle <- function(data, x = NULL, y = NULL,
     temp.y <- y
   }
   
-  temp.y.r <- expand_range(range(temp.y), mul = mul)
+
+  if(length(ylim))
+    temp.y.r <- expand_range(ylim, mul = mul)
+  else
+    temp.y.r <- expand_range(range(temp.y), mul = mul)
   temp.y <- (temp.y - min(temp.y.r))/diff(temp.y.r) * trackWidth + radius
   
   ## always from 1 to max
@@ -305,6 +314,66 @@ transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
   res <- transformToCircle(res, y = .y, radius = radius, trackWidth =trackWidth,
                    direction = direction)
   res
+}
+
+## ok, segment allow user to use a flexible y
+transformToSegInCircle2 <- function(data, y = NULL, space.skip = 0.1,
+                                    trackWidth = 10, radius = 10,
+                                    direction = c("clockwise", "anticlockwise"),
+                                    n = 100, mul = 0.05){
+
+  if(is_coord_genome(data))
+    x.max <- values(data)$x.max
+  else
+    x.max <- max(end(data))
+  x.unit <- x.max/n
+  direction <- match.arg(direction)
+  data.back <- data
+
+    ## need to consider the space
+  if(length(y)){
+    temp.y <- as.character(values(data)[,as.character(y)])
+    if(is.character(temp.y)){
+      temp.y <- as.numeric(as.factor((temp.y)))
+    }
+    if(!all(check.integer(temp.y)))
+      stop("geom(bar) require specified 'y', must be integer which indicates the levels")
+    values(data)$stepping <- temp.y
+  }else{
+      values(data)$stepping <- disjointBins(data, ignore.strand = TRUE)
+  }
+  names(data) <- NULL
+  df <- as.data.frame(data)
+
+  lst <- lapply(1:nrow(df), function(i){
+    if(df[i,"width"] > 1){
+      ## .n <- round(df[i, "width"]/x.unit)
+      ## if(.n<=1) .n <- 1
+      ## inter.fun <- function(x, y) approx(x, y, n = .n)
+      res.x <- c((df[i, "start"] + df[i, "end"])/2, (df[i, "start"] + df[i, "end"])/2)      
+    }else{
+      res.x <- c(df[i, "start"], df[i, "start"])
+    }
+    res <- data.frame(.biovizBase.new.x = res.x)
+    N <- nrow(res)
+    res$.biovizBase.group <- i
+    res$.biovizBase.level <- c(df[i, "stepping"] - 0.4,
+                               df[i, "stepping"] + 0.4)
+    res <- suppressWarnings(cbind(res, df[i,]))
+    res$.int.id <- seq_len(nrow(res))
+    res
+  })
+  res <- do.call("rbind", lst)
+  .y <- ".biovizBase.level"
+  res.gr <- GRanges(res$seqnames, IRanges(start = res$.biovizBase.new.x,
+                                          width = 1),
+                    strand = res$strand)
+  values(res.gr) <- subset(res, select = -c(start, end, width, strand,seqnames))
+  seqlengths(res.gr) <- seqlengths(data)
+  res <- transformToGenome(res.gr, space.skip = space.skip)
+  res <- transformToCircle(res, y = .y, radius = radius, trackWidth = trackWidth,
+                   direction = direction, mul = mul)
+  res  
 }
 
 ## for a special GRanges
