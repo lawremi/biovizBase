@@ -5,7 +5,7 @@ useDynLib(biovizBase, .registration=TRUE)
 ## ======================================================================
 ## methods
 import(methods)
-import(stats)
+importFrom(stats, setNames)
 ## BiocGenerics
 import(BiocGenerics)
 importFrom(grDevices, colorRampPalette)
