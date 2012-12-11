@@ -24,7 +24,7 @@
 \S4method{transformToGenome}{GRangesList}(data, space.skip = 0.1)
 
 \S4method{transformToArch}{GRanges}(data, width = 1)
-transformToCircle(data, x = NULL, y = NULL,
+transformToCircle(data, x = NULL, y = NULL, ylim = NULL, 
                   radius = 10, trackWidth =10,
                   direction = c("clockwise", "anticlockwise"),
                    mul = 0.05)
@@ -69,6 +69,10 @@ is_coord_genome(data)
   }
   \item{y}{
     character for variable as y axis used for transformation.
+  }
+  \item{ylim}{
+    numeric range to control the ylimits on tracks when 'y' information
+  is involved. 
   }
   \item{space.skip}{
     numeric values indicates skipped ratio of whole space, not skipped

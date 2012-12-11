@@ -62,16 +62,24 @@
     "*" = "#D95F02")
 }
 
+## preset gpos1:100 and other widely used color
 .cytobandColor <- function(){
-  c(gneg = "grey100",
-    gpos25 = "grey90",
-    gpos50 = "grey70",
-    gpos75 = "grey40",
-    gpos100 = "grey0",
-    gvar = "grey100",
-    stalk = "brown3",
-    acen = "brown4")
+  .getCytobandColor(c("gneg", "gvar", "stalk", "acen", paste0("gpos", 1:100)))
 }
+
+## got these codes and hints from Florian Hahne, from Gviz
+.getCytobandColor <- function(type){
+    type <- as.character(type)
+    ocols <-  c(gneg = "grey100",  gpos100 = "grey0", gvar = "grey100", 
+                stalk = "brown3", acen = "brown4")
+    cols <- c(ocols[c("gneg", "stalk", "acen")],
+              gpos=unname(ocols["gpos100"]), gvar=unname(ocols["gpos100"]))
+    gpcols <- unique(grep("gpos", type, value=TRUE))
+    crmp <- colorRampPalette(c(cols["gneg"], cols["gpos"]))(100)
+    posCols <- setNames(crmp[as.integer(gsub("gpos", "", gpcols))], gpcols)
+    return(c(cols, posCols))
+}
+
 
 .AminoAcidCodeColor <- function(){
   N <- length(AMINO_ACID_CODE)

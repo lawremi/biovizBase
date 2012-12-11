@@ -5,8 +5,10 @@ useDynLib(biovizBase, .registration=TRUE)
 ## ======================================================================
 ## methods
 import(methods)
+import(stats)
 ## BiocGenerics
 import(BiocGenerics)
+importFrom(grDevices, colorRampPalette)
 
 ## importFrom(BiocGenerics, cbind, rbind)
 ## RColorBrewer
