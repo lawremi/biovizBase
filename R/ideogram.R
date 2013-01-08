@@ -13,13 +13,20 @@ getIdeogram <- function(genome,subchr,cytobands=TRUE){
   }
   if(cytobands){
     message("Loading...")
-    query <- ucscTableQuery(session,"cytoBand",genome)
-    tableName(query) <- "cytoBand"
-    df <- getTable(query)
-    gr <- GRanges(seqnames=df$chrom,
-                  IRanges(start=df$chromStart,end=df$chromEnd))
-    values(gr) <- df[,c("name","gieStain")]
-    message("Done")
+    tryres <- try(query <- ucscTableQuery(session,"cytoBand",genome))
+    if(!inherits(tryres, "try-error")){
+      tableName(query) <- "cytoBand"
+      df <- getTable(query)
+      gr <- GRanges(seqnames=df$chrom,
+                    IRanges(start=df$chromStart,end=df$chromEnd))
+      values(gr) <- df[,c("name","gieStain")]
+      message("Done")
+    }else{
+      message("cytoBand informatin is not available, only get ranges.")
+      message("Loading...")
+      gr <- GRangesForUCSCGenome(genome)
+      message("Done")      
+    }
   }else{
     message("Loading...")
     gr <- GRangesForUCSCGenome(genome)
