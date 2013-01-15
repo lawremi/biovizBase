@@ -3,8 +3,7 @@
 ## 2. never revise oringal
 ## 3. treak with labels
 setGeneric("transformToGenome", function(data, ...) standardGeneric("transformToGenome"))
-setMethod("transformToGenome", "GRanges", function(data, space.skip = 0.1){
-  ## data <- sort(data)
+setMethod("transformToGenome", "GRanges", function(data, space.skip = 0.1, chr.weight = NULL){
   seqs.l <- seqlengths(data)
   if(all(!is.na(seqs.l))){
     chr.l <- seqs.l
@@ -14,6 +13,32 @@ setMethod("transformToGenome", "GRanges", function(data, space.skip = 0.1){
     chr.l <- max(end(split(data, seqnames(data))))
     seqs.suml <- sum(as.numeric(chr.l))
   }
+  chr.l0 <- chr.l
+  N <- length(chr.l)
+  .start <- start(data)
+  .end <- end(data)
+  ## proportion specified for certain chromosomes
+  if(!is.null(chr.weight)){
+    if(any(!is.numeric(chr.weight)))
+      stop("chr.weight must be a vector of numeric values.")
+    if(sum(chr.weight) > 1)
+      stop("sum of chr.weight must be equal or less than 1.")
+    if(length(chr.weight) <= N){
+      if(!all(names(chr.weight) %in% names(chr.l)))
+        stop("chr.weight names must be a subset of seqinfo chromosome names")
+      if(length(chr.weight) < N){
+        .chrs <- setdiff(names(chr.l), names(chr.weight))
+        .w <- chr.l[.chrs]/sum(as.numeric(chr.l[.chrs])) * (1 - sum(chr.weight))
+        names(.w) <- .chrs
+        chr.weight <- c(chr.weight, .w)
+      }
+    }else{
+      stop("length of chr.weight cannot exceed length of seqinfo")
+    }
+    chr.l <- seqs.suml * chr.weight
+    .start <- .start/chr.l0[as.character(seqnames(data))] * chr.l[as.character(seqnames(data))]
+    .end <- .end/chr.l0[as.character(seqnames(data))] * chr.l[as.character(seqnames(data))]
+  }  
   chr.l.back <- chr.l
   space.skip <- space.skip * seqs.suml
   skps <- space.skip * ((1:length(seqs.l))-1)
@@ -24,9 +49,9 @@ setMethod("transformToGenome", "GRanges", function(data, space.skip = 0.1){
   .breaks <- chr.l2 + chr.l.back/2  + skps
   names(.breaks) <- nms
   names(chr.l2) <- nms
-  sts.new <- start(data) + skps[as.character(seqnames(data))] +
+  sts.new <- .start + skps[as.character(seqnames(data))] +
     chr.l2[as.character(seqnames(data))] 
-  ed.new <- end(data) + skps[as.character(seqnames(data))] +
+  ed.new <- .end + skps[as.character(seqnames(data))] +
     chr.l2[as.character(seqnames(data))] 
   max.chr <- rev(names(chr.l2))[1]
   x.max <- chr.l.back[max.chr] + skps[max.chr] + chr.l2[max.chr] + space.skip
@@ -42,9 +67,9 @@ setMethod("transformToGenome", "GRanges", function(data, space.skip = 0.1){
 })
 
 
-setMethod("transformToGenome", "GRangesList", function(data, space.skip = 0.1){
+setMethod("transformToGenome", "GRangesList", function(data, space.skip = 0.1, chr.weight = NULL){
   obj <- stack(data, ".group")
-  obj <- transformToGenome(obj, space.skip = space.skip)
+  obj <- transformToGenome(obj, space.skip = space.skip, chr.weight = NULL)
   obj
 })
   
@@ -62,6 +87,7 @@ rescaleGr <- function(gr, maxSize = 1e8){
     stop("must pass a GRanges of coord genome")
   x.max <- metadata(gr)$x.max
   if(x.max > maxSize){
+    values(gr)$.rescale.idx <- 1:length(gr)    
     gr <- gr[order(values(gr)$.start),]    
     .breaks <- metadata(gr)$breaks
     metadata(gr)$rescale <- TRUE
@@ -72,9 +98,10 @@ rescaleGr <- function(gr, maxSize = 1e8){
     res <- GRanges(seqnames(gr), IRanges(start  = .v[1:(N/2)],
                                      end = .v[(N/2+1):N]))
     values(res) <- values(gr)
-    res <- sort(res)
+    ## res <- sort(res)
     metadata(res) <- metadata(gr)
     metadata(res)$breaks <- .breaks
+    res <- res[order(values(res)$.rescale.idx)]
   }else{
     res <- GRanges(seqnames(gr), IRanges(start  = values(gr)$.start,
                                      end = values(gr)$.end))
@@ -153,7 +180,8 @@ transformToCircle <- function(data, x = NULL, y = NULL, ylim = NULL,
 transformToRectInCircle <- function(data, y = NULL, space.skip = 0.1,
                                     trackWidth = 10, radius = 10,
                                     direction = c("clockwise", "anticlockwise"),
-                                    n = 100, mul = 0.05){
+                                    n = 100, mul = 0.05,
+                                    chr.weight = NULL){
   if(is_coord_genome(data))
     x.max <- values(data)$x.max
   else
@@ -202,7 +230,7 @@ transformToRectInCircle <- function(data, y = NULL, space.skip = 0.1,
                     strand = res$strand)
   values(res.gr) <- subset(res, select = -c(start, end, width, strand,seqnames))
   seqlengths(res.gr) <- seqlengths(data)
-  res <- transformToGenome(res.gr, space.skip = space.skip)
+  res <- transformToGenome(res.gr, space.skip = space.skip, chr.weight = chr.weight)
   res <- transformToCircle(res, y = .y, radius = radius, trackWidth = trackWidth,
                    direction = direction, mul = mul)
   res
@@ -210,7 +238,7 @@ transformToRectInCircle <- function(data, y = NULL, space.skip = 0.1,
 
 transformToBarInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
                      direction = c("clockwise", "anticlockwise"),
-                                   n = 100, mul = 0.05){
+                                   n = 100, mul = 0.05, chr.weight = NULL){
   
   if(is_coord_genome(data))
     x.max <- values(data)$x.max
@@ -257,7 +285,7 @@ transformToBarInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
                     strand = res$strand)
   values(res.gr) <- subset(res, select = -c(start, end, width, strand,seqnames))
   seqlengths(res.gr) <- seqlengths(data)
-  res <- transformToGenome(res.gr, space.skip = space.skip)
+  res <- transformToGenome(res.gr, space.skip = space.skip, chr.weight = chr.weight)
   res <- transformToCircle(res, y = .y, radius = radius, trackWidth = trackWidth,
                    direction = direction, mul = mul)
   res
@@ -266,7 +294,7 @@ transformToBarInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
 ## ok, segment allow user to use a flexible y
 transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
                       direction = c("clockwise", "anticlockwise"),
-                      n = 100){
+                      n = 100, chr.weight = NULL){
   if(is_coord_genome(data))
     x.max <- values(data)$x.max
   else
@@ -310,7 +338,7 @@ transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
                     strand = res$strand)
   values(res.gr) <- subset(res, select = -c(start, end, width, strand,seqnames))
   seqlengths(res.gr) <- seqlengths(data)
-  res <- transformToGenome(res.gr, space.skip)
+  res <- transformToGenome(res.gr, space.skip, chr.weight = chr.weight)
   res <- transformToCircle(res, y = .y, radius = radius, trackWidth =trackWidth,
                    direction = direction)
   res
@@ -320,7 +348,7 @@ transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
 transformToSegInCircle2 <- function(data, y = NULL, space.skip = 0.1,
                                     trackWidth = 10, radius = 10,
                                     direction = c("clockwise", "anticlockwise"),
-                                    n = 100, mul = 0.05){
+                                    n = 100, mul = 0.05, chr.weight = NULL){
 
   if(is_coord_genome(data))
     x.max <- values(data)$x.max
@@ -370,7 +398,7 @@ transformToSegInCircle2 <- function(data, y = NULL, space.skip = 0.1,
                     strand = res$strand)
   values(res.gr) <- subset(res, select = -c(start, end, width, strand,seqnames))
   seqlengths(res.gr) <- seqlengths(data)
-  res <- transformToGenome(res.gr, space.skip = space.skip)
+  res <- transformToGenome(res.gr, space.skip = space.skip, chr.weight = chr.weight)
   res <- transformToCircle(res, y = .y, radius = radius, trackWidth = trackWidth,
                    direction = direction, mul = mul)
   res  
@@ -380,7 +408,8 @@ transformToSegInCircle2 <- function(data, y = NULL, space.skip = 0.1,
 transformToLinkInCircle <- function(data, linked.to, space.skip = 0.1, trackWidth = 10,
                                     radius = 10, link.fun = function(x, y, n = 100)
                                     bezier(x, y, evaluation = n),
-                                    direction = c("clockwise", "anticlockwise")){
+                                    direction = c("clockwise", "anticlockwise"),
+                                    chr.weight = NULL){
 
   direction <- match.arg(direction)
   if(missing(linked.to))
@@ -389,7 +418,7 @@ transformToLinkInCircle <- function(data, linked.to, space.skip = 0.1, trackWidt
   N <- length(data)
   values(data)$.biovizBase.idx <- 1:N
   values(values(data)[, linked.to])$.biovizBase.idx <- 1:N
-  obj <- transformToGenome(data, space.skip)
+  obj <- transformToGenome(data, space.skip, chr.weight = chr.weight)
   obj <- transformToCircle(obj, y = 0, radius = radius, trackWidth =trackWidth,
                    direction = direction)
   obj <- obj[order(values(obj)$.biovizBase.idx)]
@@ -397,7 +426,7 @@ transformToLinkInCircle <- function(data, linked.to, space.skip = 0.1, trackWidt
   df <- as.data.frame(obj)
   linktodata <- values(data)[,linked.to]
   ## missing y
-  linktodata <- transformToGenome(linktodata, space.skip)
+  linktodata <- transformToGenome(linktodata, space.skip, chr.weight = chr.weight)
   ## keep order
   linktodata <- transformToCircle(linktodata, radius = radius,
                           y = 0,
