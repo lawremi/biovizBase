@@ -32,19 +32,20 @@ transformToCircle(data, x = NULL, y = NULL, ylim = NULL,
 
 transformToRectInCircle(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
                       direction = c("clockwise", "anticlockwise"),
-                      n = 100, mul = 0.05)
+                      n = 100, mul = 0.05, chr.weight = NULL)
 
 transformToBarInCircle(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
                      direction = c("clockwise", "anticlockwise"),
-                      n = 100, mul = 0.05)
+                      n = 100, mul = 0.05, chr.weight = NULL)
 
 transformToSegInCircle(data, y = NULL, space.skip = 0.1, trackWidth = 10, radius = 10,
-                      direction = c("clockwise", "anticlockwise"), n = 100)
+                      direction = c("clockwise", "anticlockwise"), n =
+                      100, chr.weight = NULL)
 
 
 transformToLinkInCircle(data, linked.to, space.skip = 0.1, trackWidth = 10, radius = 10,
                       link.fun = function(x, y, n = 100) bezier(x, y, evaluation = n),
-                      direction = c("clockwise", "anticlockwise"))
+                      direction = c("clockwise", "anticlockwise"), chr.weight = NULL)
 
 transformDfToGr(data, seqnames = NULL, start = NULL, end = NULL,
                             width = NULL, strand = NULL,
@@ -144,6 +145,14 @@ is_coord_genome(data)
     character or integer values for column name or index indicate variable mapped to strand, default \code{NULL}
     use "to.strand" or just use *.
   }
+  \item{chr.weight}{
+    numeric vectors which sum to <1, the names of vectors has to be
+  matched with seqnames in seqinfo, and you can only specify part of the
+  seqnames, other lengths of chromosomes will be assined proportionally
+  to their seqlengths, for example, you could specify chr1 to be 0.5, so
+  the chr1 will take half of the space and other chromosomes squeezed to
+  take left of the space. 
+  }  
 }
 \value{
   A \code{GRanges} object, with calculated new variables, including
