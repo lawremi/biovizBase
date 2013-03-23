@@ -344,7 +344,7 @@ transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
   res
 }
 
-## ok, segment allow user to use a flexible y
+
 transformToSegInCircle2 <- function(data, y = NULL, space.skip = 0.1,
                                     trackWidth = 10, radius = 10,
                                     direction = c("clockwise", "anticlockwise"),
@@ -375,9 +375,6 @@ transformToSegInCircle2 <- function(data, y = NULL, space.skip = 0.1,
 
   lst <- lapply(1:nrow(df), function(i){
     if(df[i,"width"] > 1){
-      ## .n <- round(df[i, "width"]/x.unit)
-      ## if(.n<=1) .n <- 1
-      ## inter.fun <- function(x, y) approx(x, y, n = .n)
       res.x <- c((df[i, "start"] + df[i, "end"])/2, (df[i, "start"] + df[i, "end"])/2)      
     }else{
       res.x <- c(df[i, "start"], df[i, "start"])

@@ -20,8 +20,10 @@
   circular view.
 }
 \usage{
-\S4method{transformToGenome}{GRanges}(data, space.skip = 0.1)
-\S4method{transformToGenome}{GRangesList}(data, space.skip = 0.1)
+\S4method{transformToGenome}{GRanges}(data, space.skip = 0.1, chr.weight
+= NULL)
+\S4method{transformToGenome}{GRangesList}(data, space.skip = 0.1,
+chr.weight = NULL)
 
 \S4method{transformToArch}{GRanges}(data, width = 1)
 transformToCircle(data, x = NULL, y = NULL, ylim = NULL, 
