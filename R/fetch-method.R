@@ -218,17 +218,20 @@ fetch <- function(obj, which, ..., gene.id,
   res
 }
 
-scanBamGRanges <- function(file, which, ...){
+scanBamGRanges <- function(file, which, what = c("rname", "strand", "pos", "qwidth"),
+                           ...){
+  ##  check
+  .names <- c("rname", "strand", "pos", "qwidth")
+  if(!all(.names %in% what)){
+    what <- unique(c(what, .names))
+  }
+  dfnm <- setdiff(what, .names)
   ## require(Rsamtools)
-  param <- ScanBamParam(which = which, ...)
+  param <- ScanBamParam(which = which, what = what,...)
   message("scanBam...")
   bam <- scanBam(file, param = param)
   message("Coerce list to GRanges")
   .names <- c("rname", "strand", "pos", "qwidth")
-  ##  check
-  if(!all(.names %in% Rsamtools:::bamWhat(param)))
-    stop("Param must contains rname, strand, pos, qwidth")
-  dfnm <- setdiff(Rsamtools:::bamWhat(param), .names)
   ## bam <- bam[[1]]  
   res <- lapply(1:length(bam), function(i){
     bm <- bam[[i]]

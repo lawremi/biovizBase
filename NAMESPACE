@@ -20,6 +20,7 @@ import(scales)
 importFrom(Hmisc, bezier)
 ## IRanges
 importFrom(IRanges, IRanges,  disjointBins,
+           seqapply, breakInChunks,
            findOverlaps, subsetByOverlaps,
            "elementMetadata", "elementMetadata<-",
            metadata, "metadata<-",
@@ -34,7 +35,7 @@ importFrom(IRanges, IRanges,  disjointBins,
            reduce, punion, pgap, gaps)
 
 importMethodsFrom(IRanges,  split, sort, as.factor,
-                  unlist,
+                  unlist, restrict,
                   as.data.frame,
                   length,
                   "[","[<-","[[", "[[<-","$",
@@ -45,7 +46,7 @@ importClassesFrom(IRanges)
 
 ## ## GenomicRanges
 importFrom(GenomicRanges, "seqnames<-","strand<-", "seqlevels<-",
-           seqinfo, "seqinfo<-", 
+           seqinfo, "seqinfo<-", seqlevels,
            GRanges, GRangesList, Seqinfo, seqlengths, "seqlengths<-")
 importMethodsFrom(GenomicRanges, ranges, "ranges<-",
                   start, end, width, "start<-", "end<-", "width<-",
