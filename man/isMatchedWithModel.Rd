@@ -41,7 +41,7 @@ library(Rsamtools)
 bamfile <- system.file("extdata", "SRR027894subRBM17.bam",
   package="biovizBase")
 ## get index of junction read
-which(isJunctionRead(cigar(readBamGappedAlignments(bamfile))))
+which(isJunctionRead(cigar(readGAlignmentsFromBam(bamfile))))
 ##
 model <- GRanges("chr1", IRanges(c(10, 20, 30, 40), width  = 5))
 gr <- GRanges("chr1", IRanges(c(10, 10, 12, 22, 33), c(31, 40, 22, 32,

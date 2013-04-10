@@ -651,7 +651,7 @@ head(test.match[,-5])
 % \emph{Fragment length} could be defined in different
 % ways. Here, the \Rfunction{getFragLength} function simply uses the shrinkage
 % function (introduced in previous section) to cut all gaps existing in the
-% provided model and recompute the length for \Robject{GappedAlignment}
+% provided model and recompute the length for \Robject{GAlignments}
 % object instead of using its width directly. 
 
 % @ 

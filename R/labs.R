@@ -41,7 +41,7 @@ setMethod("getXLab", "GRangesList", function(obj){
   xlab  
 })
 
-setMethod("getXLab", "GappedAlignments", function(obj){
+setMethod("getXLab", "GAlignments", function(obj){
   chrs <- unique(as.character(seqnames(obj)))
   gms <- genome(obj)
   gm <- gms[chrs]

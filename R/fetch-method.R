@@ -152,15 +152,15 @@ fetch <- function(obj, which, ..., gene.id,
     }
     message("Done")
   }
-  if(is(obj, "GappedAlignments")){
+  if(is(obj, "GAlignments")){
     ## require(Rsamtools)
     ## require(Rsamtools)
     if(!missing(which))
       obj <- subsetByOverlaps(obj, which)
     if(!length(obj))
-      stop("No entry in the GappedAlignments data")
+      stop("No entry in the GAlignments data")
     if(is.null(names(obj)))
-      stop("Missing qname, please make use.name = TRUE, when reading GappedAlignments")
+      stop("Missing qname, please make use.name = TRUE, when reading GAlignments")
     grg <- grglist(obj)
     grg.u <- stack(grg, ".grl.name")
     message("extracting information...")
@@ -174,8 +174,8 @@ fetch <- function(obj, which, ..., gene.id,
       stop("type for TranscriptDb must be ", .bamfile.type)
     ## require(Rsamtools)
     if(type == "gapped.pair"){
-      message("Read GappedAlignments from BamFile...")
-      ga <- readBamGappedAlignments(obj,
+      message("Read GAlignments from BamFile...")
+      ga <- readGAlignmentsFromBam(obj,
                                     param = ScanBamParam(which = which),
                                     use.names = use.name, ...)
       res <- fetch(ga)
@@ -190,10 +190,10 @@ fetch <- function(obj, which, ..., gene.id,
       message("Read Raw from BamFile by calling scanBam...")
       res.mb <- scanBamGRanges(obj, which,
                                flag = scanBamFlag(isFirstMateRead = TRUE))
-      message("Read GappedAlignments from BamFile...")
-      ga <- readBamGappedAlignments(obj,
-                                    param = ScanBamParam(which = which),
-                                    use.names = use.name, ...)
+      message("Read GAlignments from BamFile...")
+      ga <- readGAlignmentsFromBam(obj,
+                                   param = ScanBamParam(which = which),
+                                   use.names = use.name, ...)
       res.gp <- fetch(ga)
       message("Combine...")
       nms <- values(res.mb)$qname

@@ -71,7 +71,7 @@ importClassesFrom(Rsamtools, BamFile)
 importFrom(Rsamtools, index, scanBamFlag, PileupFiles,
            PileupParam)
 importMethodsFrom(Rsamtools, path, ScanBamParam,
-                 applyPileups, scanBam, readBamGappedAlignments)
+                 applyPileups, scanBam, readGAlignmentsFromBam)
 
 ## GenomicFeatures
 importClassesFrom(GenomicFeatures,TranscriptDb)
