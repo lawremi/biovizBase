@@ -3,6 +3,7 @@
 \alias{addStepping,GenomicRanges-method}
 \usage{
 \S4method{addStepping}{GenomicRanges}(obj, group.name, extend.size = 0,
+                       fix = "center",
                        group.selfish = TRUE)
 }
 \title{Adding disjoint levels to a GenomicRanges object}
@@ -23,6 +24,11 @@ be on the same level and nothing falls in between.}
 GenomicRanges object, if it's 10, then adding 5 at both end. This
 make the close neighbors assigned to the different levels and make
 your eyes easy to identify.}
+\item{fix}{
+"start", "end", or "center"(default) passed to \code{resize},  denoting
+  what to use as an anchor for each element of obj, and add extend.size
+  to it's current width.
+}
  \item{group.selfish}{
     Passed to \code{addStepping}, control whether to show each group as
     unique level or not. If set to \code{FALSE}, if two groups are not

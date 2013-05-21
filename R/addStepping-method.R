@@ -1,4 +1,5 @@
 setMethod("addStepping",c("GenomicRanges"),function(obj, group.name, extend.size = 0,
+                                                    fix = "center",
                                                      group.selfish = TRUE){
   if(!missing(group.name)){
     if(! (group.name %in% colnames(values(obj))))
@@ -14,7 +15,7 @@ setMethod("addStepping",c("GenomicRanges"),function(obj, group.name, extend.size
       if(!group.selfish){
         x.n <- split(x, values(x)[,group.name])
         irs <- unlist(range(ranges(x.n, ignore.strand = TRUE)))
-        irs.new <- resize(irs, fix = "center", width = width(irs) + extend.size)
+        irs.new <- resize(irs, fix = fix, width = width(irs) + extend.size)
         irs.new <- sort(irs.new)
         .lvs <- disjointBins(irs.new)
         values(x)$stepping <- .lvs[as.character(values(x)[,group.name])]
