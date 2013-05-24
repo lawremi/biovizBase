@@ -208,7 +208,7 @@ transformToRectInCircle <- function(data, y = NULL, space.skip = 0.1,
   lst <- lapply(1:nrow(df), function(i){
     if(df[i,"width"] > 1){
       .n <- round(df[i, "width"]/x.unit)
-      if(.n<=1) .n <- 1
+      if(.n< 5) .n <- 5
       inter.fun <- function(x, y) approx(x, y, n = .n)
       res.x <- as.integer(inter.fun(c(df[i,"start"], df[i,"end"]), c(0, 0))$x)
     }else{
@@ -263,7 +263,7 @@ transformToBarInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
   lst <- lapply(1:nrow(df), function(i){
     if(df[i,"width"] > 1){
       .n <- round(df[i, "width"]/x.unit)
-      if(.n<=1) .n <- 1
+      if(.n< 5) .n <- 5
       inter.fun <- function(x, y) approx(x, y, n = .n)
       res.x <- as.integer(inter.fun(c(df[i,"start"], df[i,"end"]), c(0, 0))$x)
     }else{
@@ -312,7 +312,7 @@ transformToSegInCircle <- function(data, y = NULL, space.skip = 0.1, trackWidth 
   lst <- lapply(1:nrow(df), function(i){
     if(df[i,"width"] > 1){
       .n <- round(df[i, "width"]/x.unit)
-      if(.n<=1) .n <- 1
+      if(.n< 5) .n <- 5
       inter.fun <- function(x, y) approx(x, y, n = .n)
       res.x <- as.integer(inter.fun(c(df[i,"start"], df[i,"end"]), c(0, 0))$x)
     }else{
