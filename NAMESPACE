@@ -75,10 +75,11 @@ importMethodsFrom(Rsamtools, path, ScanBamParam,
 
 ## GenomicFeatures
 importClassesFrom(GenomicFeatures,TranscriptDb)
-importFrom(GenomicFeatures, transcripts, exons, cds,
-           exonsBy, cdsBy, 
-           exonsByOverlaps, transcriptsBy)
-importMethodsFrom(GenomicFeatures, isActiveSeq, "isActiveSeq<-")
+importFrom(GenomicFeatures, transcripts)
+           
+           
+importMethodsFrom(GenomicFeatures, isActiveSeq, "isActiveSeq<-", exonsByOverlaps,
+                  transcriptsBy, exonsBy, cdsBy)
 
 
 ## ======================================================================
@@ -116,7 +117,8 @@ exportMethods(addStepping,
               getGaps,
               getXScale,
               getYLab,
-              getXLab)
+              getXLab,
+              crunch)
 
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,
        pileupAsGRanges, pileupGRangesAsVariantTable, GCcontent,

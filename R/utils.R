@@ -262,3 +262,27 @@ is_homo <- function(grl){
   })))
 }
 
+
+genGenesymbolTable <- function(db, keys, keytype = "SYMBOL",
+                               columns = c("CHR", "CHRLOC", "CHRLOCEND", "SYMBOL"), unique = TRUE){
+
+    res <- select(db, keys = keys, keytype = keytype, columns = columns)
+    chr <- res[, "CHR"]
+    s <- substr(res[, "CHRLOC"], 1, 1)
+    s[s != "-"] <- "+"
+
+    st <- as.numeric(substr(res[, "CHRLOC"], 2, nchar(res[, "CHRLOC"])))
+    ed <- as.numeric(substr(res[, "CHRLOCEND"], 2, nchar(res[, "CHRLOCEND"])))
+    sym <- res[, "SYMBOL"]
+
+    res.gr <- GRanges(chr, IRanges(start = st, end = ed), strand = s, symbol = sym)
+    if(unique){
+        res.gr.l <- split(res.gr, sym)
+        syms <- sapply(res.gr.l, function(x) unique(x$symbol))
+        res.gr.l <- range(res.gr.l)
+        res.gr <- unlist(res.gr.l)
+        names(res.gr) <- syms
+    }
+    res.gr
+}
+

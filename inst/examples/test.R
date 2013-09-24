@@ -141,3 +141,24 @@ data(hg19IdeogramCyto)
 head(hg19IdeogramCyto)
 data(hg19Ideogram)
 head(hg19Ideogram)
+
+## to be removed
+library(biovizBase)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+data(genesymbol, package = "biovizBase")
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+txdb@organism
+wh <- genesymbol["BRCA1"]
+genome(txdb)
+str(txdb)
+obj <- txdb
+## decrease from 18s to 13s, then to 4.7s
+system.time(temp <- crunch(txdb, which = genesymbol["BRCA1"], type = "all"))
+system.time(temp <- crunch(txdb, which = genesymbol["BRCA1"], type = "single"))
+
+library("org.Hs.eg.db")
+hdb <- org.Hs.eg.db
+k <- keys(hdb, keytype = "SYMBOL")
+res <- genGenesymbolTable(hdb, keys = c("BRCA1", "BRCA2"))
+res <- genGenesymbolTable(hdb, keys = c("BRCA1", "BRCA2"), unique  = FALSE)
+
