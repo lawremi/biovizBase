@@ -9,11 +9,13 @@
   are TranscriptDb, GAligment and BamFile. 
 }
 \usage{
-\S4method{crunch}{TranscriptDb}(obj, which,
-                 columns = c("tx_id", "tx_name","gene_id"),
-                 type = c("all", "reduce"))
-\S4method{crunch}{GAlignments}(obj, which)
-\S4method{crunch}{BamFile}(obj, which, ...)
+\S4method{crunch}{TranscriptDb}(obj, which, columns = c("tx_id", "tx_name","gene_id"),
+       type = c("all", "reduce"), truncate.gaps = FALSE,
+       truncate.fun = NULL, ratio = 0.0025)
+\S4method{crunch}{GAlignments}(obj, which, truncate.gaps = FALSE,
+       truncate.fun = NULL, ratio = 0.0025)
+\S4method{crunch}{BamFile}(obj, which, ..., type = c("gapped.pair", "raw", "all"),
+       truncate.gaps = FALSE, truncate.fun = NULL, ratio = 0.0025)
 }
 \arguments{
   \item{obj}{
@@ -29,6 +31,16 @@
     default 'all' is to show the full model, 'reduce' is to show a
     single model. 
   }
+  \item{truncate.gaps}{
+    logical value, default \code{FALSE}. Whether to truncate gaps or
+    not. 
+  }
+  \item{truncate.fun}{
+    shrinkage function. 
+  }
+  \item{ratio}{
+    numeric value, shrinking ratio.
+  }
   \item{...}{
     arguments passed to function \code{readGAlignmentsFromBam}.
   }
@@ -43,7 +55,7 @@ data(genesymbol, package = "biovizBase")
 txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 obj <- txdb
 temp <- crunch(txdb, which = genesymbol["BRCA1"], type = "all")
-temp <- crunch(txdb, which = genesymbol["BRCA1"], type = "single")
+temp <- crunch(txdb, which = genesymbol["BRCA1"], type = "reduce")
 }
 \author{Tengfei Yin}
 

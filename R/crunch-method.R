@@ -1,9 +1,12 @@
 setGeneric("crunch", function(obj, ...) standardGeneric("crunch"))
 setMethod("crunch", "TranscriptDb", function(obj, which,
                                              columns = c("tx_id", "tx_name","gene_id"),
-                                            type = c("all", "reduce")){
+                                             type = c("all", "reduce"),
+                                             truncate.gaps = FALSE,
+                                             truncate.fun = NULL,
+                                             ratio = 0.0025){
 
-
+    type <- match.arg(type)
     if(is.list(which)){
         message("Parsing exons based on which(list) arguments")
         temp <- exons(obj, vals = which, columns = columns)
@@ -125,11 +128,26 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
             strand(res) <- "*"
         }
     }
+    if(truncate.gaps){
+        message("truncating ...")
+        if(is.null(truncate.fun)){
+            if("gap" %in% unique(values(res)$type))
+                idx <- values(res)$type %in% c("utr", "cds")
+            res.s <- reduce(res[idx], ignore.strand = TRUE)
+            truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                         maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                                ratio = ratio))
+        }
+        res <- truncate.fun(res)
+    }
     message("Done")
     res
 })
 
-setMethod("crunch", "GAlignments", function(obj, which){
+setMethod("crunch", "GAlignments", function(obj, which,
+                                            truncate.gaps = FALSE,
+                                            truncate.fun = NULL,
+                                            ratio = 0.0025){
     if(!missing(which))
         obj <- subsetByOverlaps(obj, which)
     if(!length(obj))
@@ -143,11 +161,26 @@ setMethod("crunch", "GAlignments", function(obj, which){
                                   times = elementLengths(grg))
     names(grg.u) <- NULL
     res <- grg.u
+    if(truncate.gaps){
+        if(is.null(truncate.fun)){
+            if("gap" %in% unique(values(res)$type))
+                idx <- values(res)$type %in% c("utr", "cds")
+            res.s <- reduce(res[idx], ignore.strand = TRUE)
+            truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                         maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                                ratio = ratio))
+        }
+        res <- truncate.fun(res)
+    }
+    res
 })
 
-setMethod("crunch", "BamFile", function(obj, which, ...){
-    if(!(type %in% .bamfile.type))
-        stop("type for TranscriptDb must be ", .bamfile.type)
+setMethod("crunch", "BamFile", function(obj, which, ...,
+                                        type = c("gapped.pair", "raw", "all"),
+                                        truncate.gaps = FALSE,
+                                        truncate.fun = NULL,
+                                        ratio = 0.0025){
+
     ## require(Rsamtools)
     if(type == "gapped.pair"){
         message("Read GAlignments from BamFile...")
@@ -178,6 +211,17 @@ setMethod("crunch", "BamFile", function(obj, which, ...){
         names(isize) <- nms
         values(res.gp)$isize <- isize[values(res.gp)$qname]
         res <- res.gp
+    }
+    if(truncate.gaps){
+        if(is.null(truncate.fun)){
+            if("gap" %in% unique(values(res)$type))
+                idx <- values(res)$type %in% c("utr", "cds")
+            res.s <- reduce(res[idx], ignore.strand = TRUE)
+            truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                         maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                                ratio = ratio))
+        }
+        res <- truncate.fun(res)
     }
     res
 })
