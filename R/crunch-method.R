@@ -14,8 +14,11 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     }
 
     seqnms <- as.character(unique(seqnames(which)))
-
-    seqlevels(obj, force = TRUE) <- seqnms
+    if(seqnms %in% seqlevels(obj)){
+        seqlevels(obj, force = TRUE) <- seqnms
+    }else{
+        stop(seqnms, " is not matched with seqlevels of your object, please rename your 'which' arguments ")
+    }
     on.exit(seqlevels0(obj))
 
 
@@ -88,11 +91,18 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     .nms <- names(ir.introns)
     .gid.nms <- mt[.nms, "gene_id"]
     .tx.nms <- mt[.nms, "tx_name"]
-    gr.introns <- GRanges(seqnms, ir.introns, tx_id = .nms,
-                          tx_name = .tx.nms, gene_id = .gid.nms,
-                          type = "gap")
-    names(gr.introns) <- NULL
-    values(gr.introns)$type <-     as.character(values(gr.introns)$type)
+
+    if(length(ir.introns)){
+        gr.introns <- GRanges(seqnms, ir.introns, tx_id = .nms,
+                              tx_name = .tx.nms, gene_id = .gid.nms,
+                              type = "gap")
+        names(gr.introns) <- NULL
+        values(gr.introns)$type <-     as.character(values(gr.introns)$type)
+    }else{
+        gr.introns <- GRanges()
+        ## seqlevels(gr.introns) <- seqlevels(gr.)
+    }
+
     
     ## utrs
     irl.utrs <- setdiff(ranges(exons), ranges(cdss))
@@ -100,6 +110,7 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     .nms <- names(ir.utrs)
     .gid.nms <- mt[.nms, "gene_id"]
     .tx.nms <- mt[.nms, "tx_name"]
+
     gr.utrs <- GRanges(seqnms, ir.utrs, tx_id = .nms,
                        tx_name = .tx.nms, gene_id = .gid.nms,
                        type = "utr")

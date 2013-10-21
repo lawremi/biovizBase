@@ -162,3 +162,10 @@ k <- keys(hdb, keytype = "SYMBOL")
 res <- genGenesymbolTable(hdb, keys = c("BRCA1", "BRCA2"))
 res <- genGenesymbolTable(hdb, keys = c("BRCA1", "BRCA2"), unique  = FALSE)
 
+## test new OrganismDbi
+library(Homo.sapiens)
+
+
+
+
+
