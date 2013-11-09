@@ -70,8 +70,10 @@ importFrom(Biostrings, AA_ALPHABET,
 importClassesFrom(Rsamtools, BamFile)
 importFrom(Rsamtools, index, scanBamFlag, PileupFiles,
            PileupParam)
-importMethodsFrom(Rsamtools, path, ScanBamParam,
-                 applyPileups, scanBam, readGAlignmentsFromBam)
+importMethodsFrom(Rsamtools, path, ScanBamParam, applyPileups, scanBam)
+
+## GenomicAlignments
+importMethodFrom(GenomicAlignments, readGAlignmentsFromBam)
 
 ## GenomicFeatures
 importClassesFrom(GenomicFeatures,TranscriptDb)
