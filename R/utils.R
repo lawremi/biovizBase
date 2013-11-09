@@ -464,9 +464,9 @@ fetch <- function(obj, which, ..., gene.id,
     ## require(Rsamtools)
     if(type == "gapped.pair"){
       message("Read GappedAlignments from BamFile...")
-      ga <- readBamGappedAlignments(obj,
-                                    param = ScanBamParam(which = which),
-                                    use.names = use.name, ...)
+      ga <- readGAlignmentsFromBam(obj,
+                                   param = ScanBamParam(which = which),
+                                   use.names = use.name, ...)
       res <- fetch(ga)
     }
 
@@ -480,9 +480,9 @@ fetch <- function(obj, which, ..., gene.id,
       res.mb <- scanBamGRanges(obj, which,
                                flag = scanBamFlag(isFirstMateRead = TRUE))
       message("Read GappedAlignments from BamFile...")
-      ga <- readBamGappedAlignments(obj,
-                                    param = ScanBamParam(which = which),
-                                    use.names = use.name, ...)
+      ga <- readGAlignmentsFromBam(obj,
+                                   param = ScanBamParam(which = which),
+                                   use.names = use.name, ...)
       res.gp <- fetch(ga)
       message("Combine...")
       nms <- values(res.mb)$qname

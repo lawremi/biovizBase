@@ -37,7 +37,7 @@ isMatchedWithModel(model, gr)
   consecutive exons in \code{model} as one support for it.
 }
 \examples{
-library(Rsamtools)
+library(GenomicAlignments)
 bamfile <- system.file("extdata", "SRR027894subRBM17.bam",
   package="biovizBase")
 ## get index of junction read
