@@ -76,23 +76,30 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     names(gr.exons) <- NULL
     
     ## cds
+
     gr.cdss <- unlist(cdss)
     .nms <- as.character(gr.cdss$tx_id)
     .gid.nms <- mt[.nms, "gene_id"]
     .tx.nms <- mt[.nms, "tx_name"]
-    values(gr.cdss) <- NULL
-    values(gr.cdss) <- data.frame(tx_id = .nms, tx_name = .tx.nms,
-                                   gene_id = .gid.nms, type = "cds")
-    values(gr.cdss)$type <-     as.character(values(gr.cdss)$type)
-    names(gr.cdss) <- NULL    
+    if(length(gr.cdss)){
+        values(gr.cdss) <- NULL
+        values(gr.cdss) <- data.frame(tx_id = .nms, tx_name = .tx.nms,
+                                      gene_id = .gid.nms, type = "cds")
+        values(gr.cdss)$type <-     as.character(values(gr.cdss)$type)
+        names(gr.cdss) <- NULL
+    }else{
+        gr.cdss <- GRanges()
+    }
+    
+
     ## intron
     irl.introns <- gaps(ranges(exons))
     ir.introns <- unlist(irl.introns)
-    .nms <- names(ir.introns)
-    .gid.nms <- mt[.nms, "gene_id"]
-    .tx.nms <- mt[.nms, "tx_name"]
-
     if(length(ir.introns)){
+        .nms <- names(ir.introns)
+        .gid.nms <- mt[.nms, "gene_id"]
+        .tx.nms <- mt[.nms, "tx_name"]
+
         gr.introns <- GRanges(seqnms, ir.introns, tx_id = .nms,
                               tx_name = .tx.nms, gene_id = .gid.nms,
                               type = "gap")
@@ -105,18 +112,21 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
 
     
     ## utrs
-    irl.utrs <- setdiff(ranges(exons), ranges(cdss))
-    ir.utrs <- unlist(irl.utrs)
-    .nms <- names(ir.utrs)
-    .gid.nms <- mt[.nms, "gene_id"]
-    .tx.nms <- mt[.nms, "tx_name"]
-
-    gr.utrs <- GRanges(seqnms, ir.utrs, tx_id = .nms,
-                       tx_name = .tx.nms, gene_id = .gid.nms,
-                       type = "utr")
-    names(gr.utrs) <- NULL
-    values(gr.utrs)$type <-     as.character(values(gr.utrs)$type)
-
+    if(length(exons) && length(cdss)){
+        irl.utrs <- setdiff(ranges(exons), ranges(cdss))
+        ir.utrs <- unlist(irl.utrs)
+        .nms <- names(ir.utrs)
+        .gid.nms <- mt[.nms, "gene_id"]
+        .tx.nms <- mt[.nms, "tx_name"]
+        gr.utrs <- GRanges(seqnms, ir.utrs, tx_id = .nms,
+                           tx_name = .tx.nms, gene_id = .gid.nms,
+                           type = "utr")
+        names(gr.utrs) <- NULL
+        values(gr.utrs)$type <-     as.character(values(gr.utrs)$type)
+    }else{
+        gr.utrs <- GRanges()
+    }
+    
     ## combine
     res <- c(gr.exons, gr.cdss, gr.introns, gr.utrs)
     if(!length(res))

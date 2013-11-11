@@ -128,6 +128,8 @@ genSymbols <- function(org){
 
 setGeneric("getGaps", function(obj, ...) standardGeneric("getGaps"))
 setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
+    if(!length(obj))
+        return(GRanges())
   if(!length(facets))
     facets <- as.formula(~seqnames)
   allvars <- all.vars(as.formula(facets))
