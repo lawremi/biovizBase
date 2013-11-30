@@ -1,7 +1,7 @@
 ##----------------------------------------------------------------##
 ##                         ideogram
 ##----------------------------------------------------------------##
-getIdeogram <- function(genome,subchr,cytobands=TRUE){
+getIdeogram <- function(genome,subchr = NULL,cytobands=TRUE){
   ## to remove the "heavy dependency" we put require here.
   require(rtracklayer)
   if(!(exists("session")&&extends(class(session),"BrowserSession")))
@@ -32,7 +32,7 @@ getIdeogram <- function(genome,subchr,cytobands=TRUE){
     gr <- GRangesForUCSCGenome(genome)
     message("Done")
   }
-  if(!missing(subchr))
+  if(length(subchr))
     gr <- gr[seqnames(gr) == subchr]
   ## gr <- sortChr(gr)
   ## sortChr is removed

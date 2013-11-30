@@ -19,27 +19,8 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     }else{
         stop(seqnms, " is not matched with seqlevels of your object, please rename your 'which' arguments ")
     }
+    ## seqlevels(obj, force = TRUE) <- seqnms
     on.exit(seqlevels0(obj))
-
-
-    message("Parsing exons...")
-    ## system.time(exons <- exonsBy(obj, "tx")) #takes 3.5s
-    exons <- exonsByOverlaps(obj, which, columns = c("exon_id", "tx_id")) # 1.6
-    txids <- unlist(exons$tx_id)
-    idx <- togroup(exons$tx_id)
-    exons <- exons[idx]
-    exons <- exons[,1]
-    exons$tx_id <- txids
-    exons <- split(exons, exons$tx_id)
-
-    message("Parsing cds...")
-    cdss <- cdsByOverlaps(obj, which, columns = c("exon_id", "tx_id"))
-    txids <- unlist(cdss$tx_id)
-    idx <- togroup(cdss$tx_id)
-    cdss <- cdss[idx]
-    cdss <- cdss[,1]
-    cdss$tx_id <- txids
-    cdss <- split(cdss, cdss$tx_id)
 
     ## system.time(cdss <- cdsBy(obj, "tx")) #2.552s
 
@@ -49,128 +30,150 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     
     tx <- transcriptsByOverlaps(obj, which, columns = columns)
 
-    message("Parsing utrs...")      
-    txids <- as.character(values(tx)$tx_id)
-
-    ## new method operate on GRangesList levels, and it is much faster to aggregate
-    gids <- values(tx)$gene_id
-    gids <- unlist(lapply(gids, function(x) do.call(paste0, list(as.list(x), collapse = ","))))
-
-    tx_nm <- values(tx)$tx_name
-
-    ## match table
-    mt <- data.frame(txids, gids, tx_nm)
-    rownames(mt) <- txids
-    colnames(mt) <- c("tx_id", "gene_id", "tx_name")
-    
-
-    ## exons
-    message("------exons...")    
-    gr.exons <- unlist(exons)
-    .nms <- as.character(gr.exons$tx_id)
-    .gid.nms <- mt[.nms, "gene_id"]
-    .tx.nms <- mt[.nms, "tx_name"]
-    values(gr.exons) <- NULL
-    values(gr.exons) <- data.frame(tx_id = .nms, tx_name = .tx.nms,
-                                   gene_id = .gid.nms, type = "exon")
-    values(gr.exons)$type <-     as.character(values(gr.exons)$type)
-    names(gr.exons) <- NULL
-    
-    ## cds
-    message("------cdss...")    
-    gr.cdss <- unlist(cdss)
-    .nms <- as.character(gr.cdss$tx_id)
-    .gid.nms <- mt[.nms, "gene_id"]
-    .tx.nms <- mt[.nms, "tx_name"]
-    if(length(gr.cdss)){
-        values(gr.cdss) <- NULL
-        values(gr.cdss) <- data.frame(tx_id = .nms, tx_name = .tx.nms,
-                                      gene_id = .gid.nms, type = "cds")
-        values(gr.cdss)$type <-     as.character(values(gr.cdss)$type)
-        names(gr.cdss) <- NULL
+    if(!length(tx)){
+        message("No transcripts found at this region.")
+        return(GRanges())
     }else{
-        gr.cdss <- GRanges()
-    }
-    
 
-    ## intron
-    message("------introns...")    
-    irl.introns <- gaps(ranges(exons))
-    ir.introns <- unlist(irl.introns)
-    if(length(ir.introns)){
-        .nms <- names(ir.introns)
+        message("Parsing exons...")
+        ## system.time(exons <- exonsBy(obj, "tx")) #takes 3.5s
+        exons <- exonsByOverlaps(obj, which, columns = c("exon_id", "tx_id")) # 1.6
+        txids <- unlist(exons$tx_id)
+        idx <- togroup(exons$tx_id)
+
+        exons <- exons[idx]
+        exons <- exons[,1]
+        exons$tx_id <- txids
+        exons <- split(exons, exons$tx_id)
+
+        message("Parsing cds...")
+        cdss <- cdsByOverlaps(obj, which, columns = c("exon_id", "tx_id"))
+        txids <- unlist(cdss$tx_id)
+        idx <- togroup(cdss$tx_id)
+        cdss <- cdss[idx]
+        cdss <- cdss[,1]
+        cdss$tx_id <- txids
+        cdss <- split(cdss, cdss$tx_id)
+
+        
+        message("Parsing utrs...")      
+        txids <- as.character(values(tx)$tx_id)
+
+        ## new method operate on GRangesList levels, and it is much faster to aggregate
+        gids <- values(tx)$gene_id
+        gids <- unlist(lapply(gids, function(x) do.call(paste0, list(as.list(x), collapse = ","))))
+
+        tx_nm <- values(tx)$tx_name
+
+        ## match table
+        mt <- data.frame(txids, gids, tx_nm)
+        rownames(mt) <- txids
+        colnames(mt) <- c("tx_id", "gene_id", "tx_name")
+        
+
+        ## exons
+        message("------exons...")
+        gr.exons <- unlist(exons)
+        .nms <- as.character(gr.exons$tx_id)
         .gid.nms <- mt[.nms, "gene_id"]
         .tx.nms <- mt[.nms, "tx_name"]
+        values(gr.exons) <- NULL
+        values(gr.exons) <- data.frame(tx_id = .nms, tx_name = .tx.nms,
+                                       gene_id = .gid.nms, type = "exon")
+        values(gr.exons)$type <-     as.character(values(gr.exons)$type)
+        names(gr.exons) <- NULL
+        
+        ## cds
+        message("------cdss...")    
+        gr.cdss <- unlist(cdss)
+        .nms <- as.character(gr.cdss$tx_id)
+        .gid.nms <- mt[.nms, "gene_id"]
+        .tx.nms <- mt[.nms, "tx_name"]
+        if(length(gr.cdss)){
+            values(gr.cdss) <- NULL
+            values(gr.cdss) <- data.frame(tx_id = .nms, tx_name = .tx.nms,
+                                          gene_id = .gid.nms, type = "cds")
+            values(gr.cdss)$type <-     as.character(values(gr.cdss)$type)
+            names(gr.cdss) <- NULL
+        }else{
+            gr.cdss <- GRanges()
+        }
 
-        gr.introns <- GRanges(seqnms, ir.introns, tx_id = .nms,
-                              tx_name = .tx.nms, gene_id = .gid.nms,
-                              type = "gap")
-        names(gr.introns) <- NULL
-        values(gr.introns)$type <-     as.character(values(gr.introns)$type)
-    }else{
-        gr.introns <- GRanges()
-        ## seqlevels(gr.introns) <- seqlevels(gr.)
-    }
-
-    
-    ## utrs
-    message("------utr...")        
-    if(length(exons) && length(cdss)){
-        irl.utrs <- setdiff(ranges(exons), ranges(cdss))
-        ir.utrs <- unlist(irl.utrs)
-        if(length(ir.utrs)){
-            .nms <- names(ir.utrs)
+        ## intron
+        message("------introns...")
+        irl.introns <- gaps(ranges(exons))
+        ir.introns <- unlist(irl.introns)
+        if(length(ir.introns)){
+            .nms <- names(ir.introns)
             .gid.nms <- mt[.nms, "gene_id"]
             .tx.nms <- mt[.nms, "tx_name"]
-            gr.utrs <- GRanges(seqnms, ir.utrs, tx_id = .nms,
-                               tx_name = .tx.nms, gene_id = .gid.nms,
-                               type = "utr")
-            names(gr.utrs) <- NULL
-            values(gr.utrs)$type <-     as.character(values(gr.utrs)$type)
+            gr.introns <- GRanges(seqnms, ir.introns, tx_id = .nms,
+                                  tx_name = .tx.nms, gene_id = .gid.nms,
+                                  type = "gap")
+            names(gr.introns) <- NULL
+            values(gr.introns)$type <-  as.character(values(gr.introns)$type)
         }else{
-            gr.utrs <- GRanges()            
+            gr.introns <- GRanges()
         }
-    }else{
-        gr.utrs <- GRanges()
-    }
-    
-    ## combine
-    message("aggregating...")    
-    res <- c(gr.exons, gr.cdss, gr.introns, gr.utrs)
-    if(!length(res))
-        res <- GRanges()
-    res$type <- factor(res$type)
-    
-    if(type == "reduce"){
-        if(length(res)){
-            cds.s <- reduce(res[values(res)$type == "cds"])
-            values(cds.s)$type <- factor("cds")
-            exon.s <- reduce(res[values(res)$type == "exon"])
-            values(exon.s)$type <- factor("exon")
-            utr.s <- setdiff(exon.s, cds.s)
-            values(utr.s)$type <- factor("utr")
-            gap.s <- gaps(cds.s, start = min(start(cds.s)),
-                          end = max(end(cds.s)))
-            values(gap.s)$type <- factor("gap")
-            res <- c(cds.s, utr.s, gap.s)
-            ## change it to *
-            strand(res) <- "*"
+        ## utrs
+        message("------utr...")    
+        if(length(exons) && length(cdss)){
+            suppressWarnings(irl.utrs <- setdiff(ranges(exons), ranges(cdss)))
+            ir.utrs <- unlist(irl.utrs)
+            if(length(ir.utrs)){
+                .nms <- names(ir.utrs)
+                .gid.nms <- mt[.nms, "gene_id"]
+                .tx.nms <- mt[.nms, "tx_name"]
+                gr.utrs <- GRanges(seqnms, ir.utrs, tx_id = .nms,
+                                   tx_name = .tx.nms, gene_id = .gid.nms,
+                                   type = "utr")
+                names(gr.utrs) <- NULL
+                values(gr.utrs)$type <-     as.character(values(gr.utrs)$type)
+            }else{
+                gr.utrs <- GRanges()            
+            }
+        }else{
+            gr.utrs <- GRanges()
         }
-    }
-    if(truncate.gaps){
-        message("truncating ...")
-        if(is.null(truncate.fun)){
-            if("gap" %in% unique(values(res)$type))
-                idx <- values(res)$type %in% c("utr", "cds")
-            res.s <- reduce(res[idx], ignore.strand = TRUE)
-            truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
-                                         maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
-                                                ratio = ratio))
+        ## combine
+        message("aggregating...")
+        res <- c(gr.exons, gr.cdss, gr.introns, gr.utrs)
+
+        if(!length(res))
+            res <- GRanges()
+        res$type <- factor(res$type)
+        
+        if(type == "reduce"){
+            if(length(res)){
+                cds.s <- reduce(res[values(res)$type == "cds"])
+                values(cds.s)$type <- factor("cds")
+                exon.s <- reduce(res[values(res)$type == "exon"])
+                values(exon.s)$type <- factor("exon")
+                utr.s <- setdiff(exon.s, cds.s)
+                values(utr.s)$type <- factor("utr")
+                gap.s <- gaps(cds.s, start = min(start(cds.s)),
+                              end = max(end(cds.s)))
+                values(gap.s)$type <- factor("gap")
+                res <- c(cds.s, utr.s, gap.s)
+                ## change it to *
+                strand(res) <- "*"
+            }
         }
-        res <- truncate.fun(res)
+        if(truncate.gaps){
+            message("truncating ...")
+            if(is.null(truncate.fun)){
+                if("gap" %in% unique(values(res)$type))
+                    idx <- values(res)$type %in% c("utr", "cds")
+                res.s <- reduce(res[idx], ignore.strand = TRUE)
+                truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                             maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                                    ratio = ratio))
+            }
+            res <- truncate.fun(res)
+        }
+        message("Done")
+        res
     }
-    message("Done")
-    res
 })
 
 setMethod("crunch", "GAlignments", function(obj, which,
