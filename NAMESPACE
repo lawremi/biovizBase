@@ -4,13 +4,13 @@ useDynLib(biovizBase, .registration=TRUE)
 ## Import
 ## ======================================================================
 
+import(methods)
 import(BiocGenerics)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### base packages
 ###
 
-import(methods)
 importFrom(grDevices, colorRampPalette)
 importFrom(graphics, par, plot, rect, text)
 importFrom(stats, approx, as.formula, asOneSidedFormula, setNames)
@@ -40,7 +40,7 @@ importMethodsFrom(IRanges, split, sort, as.factor,
                   countOverlaps, disjointBins, elementLengths, end, endoapply,
                   findOverlaps, gaps, metadata, "metadata<-", pgap, punion,
                   ranges, reduce, resize, shift, start, "start<-",
-                  subsetByOverlaps, togroup, values, "values<-", width)
+                  subsetByOverlaps, togroup, values, "values<-", width, stack)
 importClassesFrom(IRanges, IRanges)
 
 ## GenomicRanges
