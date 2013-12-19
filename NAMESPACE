@@ -3,86 +3,79 @@ useDynLib(biovizBase, .registration=TRUE)
 ## ======================================================================
 ## Import
 ## ======================================================================
-## methods
-import(methods)
-importFrom(stats, setNames)
-## BiocGenerics
+
 import(BiocGenerics)
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### base packages
+###
+
+import(methods)
 importFrom(grDevices, colorRampPalette)
+importFrom(graphics, par, plot, rect, text)
+importFrom(stats, approx, as.formula, asOneSidedFormula, setNames)
+importFrom(utils, menu)
 
-## importFrom(BiocGenerics, cbind, rbind)
-## RColorBrewer
-import(RColorBrewer)
-import(dichromat)
-## scales
-import(scales)
-## Hmisc
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Non-bioconductor packages
+###
+
+importFrom(RColorBrewer, brewer.pal)
+importFrom(scales, dichromat_pal, dscale, expand_range, rescale)
 importFrom(Hmisc, bezier)
-## IRanges
-importFrom(IRanges, IRanges,  disjointBins,
-           seqapply, breakInChunks,
-           findOverlaps, subsetByOverlaps,
-           "elementMetadata", "elementMetadata<-",
-           metadata, "metadata<-",
-           start, width, end,  resize, 
-           "values", "values<-",
-           ranges, "ranges<-", 
-           isTRUEorFALSE, coverage, slice,
-           elementLengths,endoapply,
-           ## viewWhichMins, viewWhichMaxs,
-           ## viewMins, viewMaxs, viewSums, viewMeans,
-           ## runValue, runLength,
-           reduce, punion, pgap, gaps)
+importFrom(dichromat, colorschemes)
 
-importMethodsFrom(IRanges,  split, sort, as.factor,
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Bioconductor packages
+###
+
+## IRanges
+importFrom(IRanges, IRanges, seqapply, breakInChunks)
+importMethodsFrom(IRanges, split, sort, as.factor,
                   unlist, restrict,
                   as.data.frame,
                   length,
                   "[","[<-","[[", "[[<-","$",
-                  "%in%", show)
+                  "%in%", show,
+                  countOverlaps, disjointBins, elementLengths, end, endoapply,
+                  findOverlaps, gaps, metadata, "metadata<-", pgap, punion,
+                  ranges, reduce, resize, shift, start, "start<-",
+                  subsetByOverlaps, togroup, values, "values<-", width)
+importClassesFrom(IRanges, IRanges)
 
-
-importClassesFrom(IRanges)
-
-## ## GenomicRanges
-
-importFrom(GenomicRanges, keepSeqlevels, renameSeqlevels,
-           "seqnames<-","strand<-", "seqlevels<-", seqinfo,
-           "seqinfo<-", seqlevels, GRanges, GRangesList, Seqinfo,
-           seqlengths, "seqlengths<-")
-importMethodsFrom(GenomicRanges, ranges, "ranges<-", start, end,
-                  width, "start<-", "end<-", "width<-", seqnames,
+## GenomicRanges
+importFrom(GenomicRanges, keepSeqlevels, GRanges)
+importMethodsFrom(GenomicRanges, genome, grglist, seqinfo, seqlengths,
+                  "seqlengths<-", seqlevels, seqlevels0, "seqlevels<-", seqnames,
+                  ranges, "ranges<-", start, end,
+                  width, "start<-", "end<-", "width<-",
                   strand, show, "elementMetadata<-", elementMetadata,
                   as.data.frame)
-
-importClassesFrom(GenomicRanges, GRanges, GenomicRanges)
+importClassesFrom(GenomicRanges, GRanges, GRangesList, GenomicRanges)
 
 ## Biostrings
-importFrom(Biostrings, AA_ALPHABET,
-           DNA_ALPHABET,
-           DNA_BASES,
-           IUPAC_CODE_MAP,
-           RNA_ALPHABET,
-           AMINO_ACID_CODE,           
-           RNA_BASES)
+importFrom(Biostrings, AA_ALPHABET, DNA_ALPHABET, RNA_ALPHABET,
+           IUPAC_CODE_MAP, AMINO_ACID_CODE)
+importMethodsFrom(Biostrings, getSeq, letterFrequency,
+                  letterFrequencyInSlidingView)
 
 ## Rsamtools
 importClassesFrom(Rsamtools, BamFile)
-importFrom(Rsamtools, index, scanBamFlag, PileupFiles,
-           PileupParam)
-importMethodsFrom(Rsamtools, path, ScanBamParam, applyPileups, scanBam)
+importFrom(Rsamtools, index, scanBamFlag, PileupFiles, PileupParam)
+importMethodsFrom(Rsamtools, ScanBamParam, applyPileups, scanBam)
 
 ## GenomicAlignments
-importMethodsFrom(GenomicAlignments, readGAlignmentsFromBam)
+importFrom(GenomicAlignments, cigar, readGAlignmentsFromBam)
+importClassesFrom(GenomicAlignments, GAlignments)
 
 ## GenomicFeatures
 importClassesFrom(GenomicFeatures,TranscriptDb)
-importFrom(GenomicFeatures, transcripts)
-           
-           
-importMethodsFrom(GenomicFeatures, isActiveSeq, "isActiveSeq<-", exonsByOverlaps,
-                  transcriptsBy, exonsBy, cdsBy)
+importMethodsFrom(GenomicFeatures, transcripts, cdsBy, cdsByOverlaps, exonsBy,
+                  exonsByOverlaps, isActiveSeq, "isActiveSeq<-", transcripts,
+                  transcriptsByOverlaps)
 
+## AnnotationDbi
+importFrom(AnnotationDbi, unlist2)
 
 ## ======================================================================
 ##    export
