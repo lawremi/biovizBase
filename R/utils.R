@@ -509,3 +509,7 @@ fetch <- function(obj, which, ..., gene.id,
   res
 }
 
+rectifySeqnameStyle <- function(x, y) {
+  seqnameStyle(x) <- seqnameStyle(y)
+  x
+}

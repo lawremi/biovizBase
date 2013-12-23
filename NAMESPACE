@@ -50,7 +50,7 @@ importMethodsFrom(GenomicRanges, genome, grglist, seqinfo, seqlengths,
                   ranges, "ranges<-", start, end,
                   width, "start<-", "end<-", "width<-",
                   strand, show, "elementMetadata<-", elementMetadata,
-                  as.data.frame)
+                  as.data.frame, seqnameStyle, "seqnameStyle<-")
 importClassesFrom(GenomicRanges, GRanges, GRangesList, GenomicRanges)
 
 ## Biostrings

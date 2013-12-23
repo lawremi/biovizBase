@@ -97,6 +97,7 @@ pileupGRangesAsVariantTable <- function(gr, genome,
   require(BSgenome)
   colnms <- colnames(values(gr))
   DNAbases <- colnms[colnms %in% DNABases]
+  gr <- rectifySeqnameStyle(gr, genome)
   refBases <- getSeq(genome, gr, as.character = TRUE)
   counts <- as.matrix(as.data.frame(values(gr)[,DNABases]))
   refCounts <- counts[cbind(seq(nrow(counts)), match(refBases, DNABases))]
