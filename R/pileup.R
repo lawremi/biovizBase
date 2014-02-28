@@ -32,33 +32,20 @@ pileupAsGRanges <- function(bams, regions,
   if (is.null(bamNames))
     bamNames <- bams
   pileupFun <- function(x) {
-    grl <- lapply(seq_len(length(bamNames)),function(i){
+    grl <- lapply(seq_len(length(bamNames)), function(i) {
       seq <- x$seq[DNABases,i,]
-      if(length(seq)){
-        GRanges(seqnames = rep(names(x$seqnames), each = length(bams[i])),
-                ranges = IRanges(rep(x$pos, each = length(bams[i])), width = 1),
-                strand = "+",
-                t(seq),
-                depth = colSums(seq), bam = bamNames[i])
-      }else{
-        N <- width(regions)
-        GRanges(seqnames = rep(as.character(seqnames(regions)),N),
-                 ranges = IRanges(start = start(regions):end(regions), width = 1),
-                strand = rep("*", N),
-                A = rep(0, N), C = rep(0, N),
-                G = rep(0, N), T = rep(0, N),
-                N = rep(0, N),
-                depth = rep(0, N), bam = rep(bamNames, N))
-      }})
+      sn <- unique(names(x$seqnames))
+      GRanges(seqnames = Rle(names(x$seqnames), x$seqnames),
+              ranges = IRanges(x$pos, width = rep(1L, length(x$pos))),
+              strand = rep("+", length(x$pos)),
+              t(seq),
+              depth = colSums(seq), bam = Rle(bamNames[i], length(x$pos)))
+    })
     do.call(c, grl[!is.null(grl)])
   }
   gr <- do.call(c, applyPileups(pileupFiles, pileupFun, param = pileupParams))
+  seqinfo(gr) <- seqinfo(regions)
   gr
-  ## rc <- strand(gr) == "-"
-  ## if(sum(rc) > 0)
-  ##   values(gr)[rc, DNABases] <-
-  ##     values(gr)[rc, as.character(complement(DNAStringSet(DNABases)))]
-  ## split(test, values(test)$bam)
 }
 
 ##' Compare to reference genome and compute mismatch summary for
