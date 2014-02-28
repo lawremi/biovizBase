@@ -37,7 +37,7 @@ pileupAsGRanges <- function(bams, regions,
       sn <- unique(names(x$seqnames))
       GRanges(seqnames = Rle(names(x$seqnames), x$seqnames),
               ranges = IRanges(x$pos, width = rep(1L, length(x$pos))),
-              strand = rep("+", length(x$pos)),
+              strand = Rle("+", length(x$pos)),
               t(seq),
               depth = colSums(seq), bam = Rle(bamNames[i], length(x$pos)))
     })
