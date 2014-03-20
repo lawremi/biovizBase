@@ -33,7 +33,7 @@ importFrom(dichromat, colorschemes)
 importFrom(IRanges, IRanges, seqapply, breakInChunks)
 importMethodsFrom(IRanges, split, sort, as.factor,
                   unlist, restrict,
-                  as.data.frame,
+                  as.data.frame, as.matrix,
                   length,
                   "[","[<-","[[", "[[<-","$",
                   "%in%", show,
