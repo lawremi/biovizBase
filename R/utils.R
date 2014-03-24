@@ -52,7 +52,7 @@ pspanGR <- function(file, region, sameChr = TRUE, isize.cutoff = 170){
   ## why negative?sometime
   bamrd <- bamrd[abs(bam$isize) >= isize.cutoff]
   if(sameChr){
-    idx <- as.character(seqnames(bamrd)) == values(bamrd)$mseqname 
+    idx <- as.character(seqnames(bamrd)) == values(bamrd)$mseqname
     bamrd <- bamrd[idx]
   }
   if(length(bamrd)){
@@ -104,7 +104,7 @@ genSymbols <- function(org){
   res$symbol <- names(gene_id[idx])
   if(sum(with(res, start_location > 0 & end_location < 0)))
     stop("Wierd pattern found")
-  if(sum(with(res, start_location < 0 & end_location > 0))) 
+  if(sum(with(res, start_location < 0 & end_location > 0)))
    stop("Wierd pattern found")
   message("get strand information...")
   res$sense <- with(res, start_location>=0&end_location>=0)
@@ -164,7 +164,7 @@ setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
   }else{
     GRanges()
   }
-  res  
+  res
 })
 
 
@@ -318,7 +318,7 @@ fetch <- function(obj, which, ..., gene.id,
       message("Parsing exons based on which(list) arguments")
       temp <- exons(obj, vals = which, columns = columns)
       which <- range(temp)
-    }    
+    }
     ## 1st set all the sequences to be inactive:
     isActiveSeq(obj)[seqlevels(obj)] <- FALSE
     ## Then set only "chr9" to be active:
@@ -354,7 +354,7 @@ fetch <- function(obj, which, ..., gene.id,
       message("Parsing transcripts...")
       tx <- transcripts(obj, columns = columns)
       tx <- subsetByOverlaps(tx, which)
-      message("Aggregating...")      
+      message("Aggregating...")
       txids <- values(tx)$tx_id
       lst <- lapply(txids, function(id){
         id <- as.character(id)
@@ -368,7 +368,7 @@ fetch <- function(obj, which, ..., gene.id,
                                         tx_name = tx_nm,
                                         gene_id = gene_id,
                                         type = "exon")
-        
+
         cds.cur <- cdss[[id]]
         seqs <- unique(as.character(seqnames(exons.cur)))
         exon_union <- reduce(exons.cur)
@@ -513,3 +513,12 @@ rectifySeqnameStyle <- function(x, y) {
   seqnameStyle(x) <- seqnameStyle(y)
   x
 }
+
+.transformSeqinfo <- function(obj){
+  ss <- seqlengths(obj)
+  res <- GRanges(seqnames(obj), IRanges(start = 1, end = ss))
+  res <- keepSeqlevels(res, names(ss))
+  seqlengths(res) <- ss
+  res
+}
+
