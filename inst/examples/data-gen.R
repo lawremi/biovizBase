@@ -80,3 +80,93 @@ id <- unlist2(mget("FOXD4L2", revmap(org.Hs.egSYMBOL)))
 id <- revmap(org.Hs.egSYMBOL)[["FOXD4L2"]]
 org.Hs.egCHRLOC[[id]]
 org.Hs.egCHRLOCEND[[id]]
+
+## new data generation method, with seqlengths
+ideogramCyto <- getIdeogram(c("hg19", "hg18", "mm10", "mm9"))
+ideogram <- getIdeogram(c("hg19", "hg18", "mm10", "mm9"), cytoband = FALSE)
+ideo <- ideogram
+ideoCyto <- ideogramCyto
+save(ideo,  file = "../../../../bioc-devel/biovizBase/data/ideo.rda")
+save(ideoCyto, file = "/Users/tengfei/Code/svnrepos/bioc-devel/biovizBase/data/ideoCyto.rda")
+hg19 <- ideoCyto$hg19
+ideoCyto$hg18 <- keepSeqlevels(ideoCyto$hg18, paste0("chr", c(1:22, "X", "Y")))
+ideoCyto$hg19 <- keepSeqlevels(ideoCyto$hg19, paste0("chr", c(1:22, "X", "Y")))
+ideoCyto$mm10 <- keepSeqlevels(ideoCyto$mm10, paste0("chr", c(1:19, "X", "Y")))
+ideoCyto$mm9 <- keepSeqlevels(ideoCyto$mm9, paste0("chr", c(1:19, "X", "Y")))
+
+## for circular view
+crc1 <- system.file("extdata", "crc1-missense.csv", package = "biovizBase")
+crc1 <- read.csv(crc1)
+library(GenomicRanges)
+mut.gr <- with(crc1,GRanges(Chromosome, IRanges(Start_position, End_position),
+                            strand = Strand))
+values(mut.gr) <- subset(crc1, select = -c(Start_position, End_position, Chromosome))
+data("hg19Ideogram", package = "biovizBase")
+seqs <- seqlengths(hg19Ideogram)
+## subset_chr
+chr.sub <- paste("chr", 1:22, sep = "")
+## levels tweak
+seqlevels(mut.gr) <- c(chr.sub, "chrX")
+mut.gr <- keepSeqlevels(mut.gr, chr.sub)
+seqs.sub <- seqs[chr.sub]
+## remove wrong position
+bidx <- end(mut.gr) <= seqs.sub[match(as.character(seqnames(mut.gr)),
+                                      names(seqs.sub))]
+mut.gr <- mut.gr[which(bidx)]
+## assign_seqlengths
+seqlengths(mut.gr) <- seqs.sub
+## reanme to shorter names
+new.names <- as.character(1:22)
+names(new.names) <- paste("chr", new.names, sep = "")
+new.names
+mut.gr.new <- renameSeqlevels(mut.gr, new.names)
+head(mut.gr.new)
+
+hg19Ideo <- hg19Ideogram
+hg19Ideo <- keepSeqlevels(hg19Ideogram, chr.sub)
+hg19Ideo <- rena
+
+rearr  <- read.csv(system.file("extdata", "crc-rearrangment.csv", package = "biovizBase"))
+## start position
+gr1 <- with(rearr, GRanges(chr1, IRanges(pos1, width = 1)))
+## end position
+gr2 <- with(rearr, GRanges(chr2, IRanges(pos2, width = 1)))
+## add extra column
+nms <- colnames(rearr)
+.extra.nms <- setdiff(nms, c("chr1", "chr2", "pos1", "pos2"))
+values(gr1) <- rearr[,.extra.nms]
+## remove out-of-limits data
+seqs <- as.character(seqnames(gr1))
+.mx <- seqlengths(hg19Ideo)[seqs]
+idx1 <- start(gr1) > .mx
+seqs <- as.character(seqnames(gr2))
+.mx <- seqlengths(hg19Ideo)[seqs]
+idx2 <- start(gr2) > .mx
+idx <- !idx1 & !idx2
+gr1 <- gr1[idx]
+seqlengths(gr1) <- seqlengths(hg19Ideo)
+gr2 <- gr2[idx]
+seqlengths(gr2) <- seqlengths(hg19Ideo)
+
+values(gr1)$to.gr <- gr2
+## rename to gr
+gr <- gr1
+values(gr)$rearrangements <- ifelse(as.character(seqnames(gr))
+                                    == as.character(seqnames((values(gr)$to.gr))),
+                                    "intrachromosomal", "interchromosomal")
+crc.gr <- gr
+crc.gr
+mut.gr <- mut.gr.new
+hg19sub <- hg19Ideo
+save(crc.gr, mut.gr, hg19sub, file = "/Users/tengfei/Code/svnrepos/bioc-devel/biovizBase/data/CRC.rda")
+
+
+snp <- read.table("/Users/tengfei/Downloads/plink.assoc.txt", header = TRUE)
+N <- 2000
+set.seed(123)
+snp <- snp[sample(1:nrow(snp), size = N, replace = FALSE),]
+rownames(snp) <- NULL
+head(snp)
+write.table(snp, 
+            file = "/Users/tengfei/Code/svnrepos/bioc-devel/biovizBase/inst/extdata/plink.assoc.sub.txt", row.names = FALSE)
+## https://github.com/stephenturner/qqman
