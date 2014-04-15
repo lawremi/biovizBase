@@ -10,7 +10,8 @@ setGeneric("estimateCoverage",
            function(x, ...) standardGeneric("estimateCoverage"))
 
 setMethod("estimateCoverage", "BamFile", function(x, maxBinSize = 2^14) {
-  bai_path <- paste(index(x), ".bai", sep = "")
+  ## bai_path <- paste(index(x), ".bai", sep = "")
+  bai_path <- index(x)
   bai <- file(bai_path, "rb")
   on.exit(close(bai))
   bytes <- readBin(bai, "raw", n = file.info(bai_path)[,"size"])
@@ -26,7 +27,7 @@ setMethod("estimateCoverage", "BamFile", function(x, maxBinSize = 2^14) {
   TOTALSIZE <- 2 ^ 29
   NBIN <- sum(TOTALSIZE / BINSIZES)
   METABIN <- NBIN + 1
-  
+
   makeBinRanges <- function() {
     unlist(seqapply(BINSIZES[BINSIZES <= maxBinSize], function(x) {
       chunks <- breakInChunks(TOTALSIZE, x)
@@ -35,11 +36,11 @@ setMethod("estimateCoverage", "BamFile", function(x, maxBinSize = 2^14) {
   }
 
   bin_ranges <- makeBinRanges()
-  
+
   bin_offsets <- lapply(bin_offsets, function(x) {
     x[,x[1,] != METABIN] # drop the samtools metadata bin
   })
-  
+
   off_scores <- lapply(seqlevels(bam_si), function(sn) {
     off <- t(bin_offsets[[sn]])
     colnames(off) <- c("bin", "start.coffset", "end.coffset",
