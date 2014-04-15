@@ -48,9 +48,10 @@ importFrom(GenomicRanges, keepSeqlevels, GRanges)
 importMethodsFrom(GenomicRanges, genome, grglist, seqinfo, seqlengths,
                   "seqlengths<-", seqlevels, seqlevels0, "seqlevels<-", seqnames,
                   ranges, "ranges<-", start, end,
-                  width, "start<-", "end<-", "width<-",
+                  width, "start<-", "end<-", "width<-", seqlevelsStyle,
                   strand, show, "elementMetadata<-", elementMetadata,
-                  as.data.frame, seqnameStyle, "seqnameStyle<-")
+                  as.data.frame)
+
 importClassesFrom(GenomicRanges, GRanges, GRangesList, GenomicRanges)
 
 ## Biostrings
@@ -76,6 +77,11 @@ importMethodsFrom(GenomicFeatures, transcripts, cdsBy, cdsByOverlaps, exonsBy,
 
 ## AnnotationDbi
 importFrom(AnnotationDbi, unlist2)
+
+## GenomeInfoDb
+importFrom(GenomeInfoDb,
+           seqlevelsStyle,
+           "seqlevelsStyle<-")
 
 ## VariantAnnotation
 importClassesFrom(VariantAnnotation, VRanges)
@@ -108,15 +114,15 @@ export(transformToCircle,
 exportMethods(transformToGenome,transformToDf)
 
 ## utils
-exportMethods(addStepping, 
+exportMethods(addStepping,
               shrinkageFun,
-              maxGap, 
+              maxGap,
               splitByFacets,
               getGaps,
               getXScale,
               getYLab,
               getXLab,
-              crunch, 
+              crunch,
 	      mold)
 
 export(isIdeogram, isSimpleIdeogram, getIdeogram, containLetters,

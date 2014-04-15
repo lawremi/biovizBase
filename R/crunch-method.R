@@ -27,7 +27,7 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
     message("Parsing transcripts...")
     ## tx <- transcripts(obj, columns = columns)
     ## subsetByOverlaps(tx, which)
-    
+
     tx <- transcriptsByOverlaps(obj, which, columns = columns)
 
     if(!length(tx)){
@@ -55,8 +55,8 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
         cdss$tx_id <- txids
         cdss <- split(cdss, cdss$tx_id)
 
-        
-        message("Parsing utrs...")      
+
+        message("Parsing utrs...")
         txids <- as.character(values(tx)$tx_id)
 
         ## new method operate on GRangesList levels, and it is much faster to aggregate
@@ -69,7 +69,7 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
         mt <- data.frame(txids, gids, tx_nm)
         rownames(mt) <- txids
         colnames(mt) <- c("tx_id", "gene_id", "tx_name")
-        
+
 
         ## exons
         message("------exons...")
@@ -82,9 +82,9 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
                                        gene_id = .gid.nms, type = "exon")
         values(gr.exons)$type <-     as.character(values(gr.exons)$type)
         names(gr.exons) <- NULL
-        
+
         ## cds
-        message("------cdss...")    
+        message("------cdss...")
         gr.cdss <- unlist(cdss)
         .nms <- as.character(gr.cdss$tx_id)
         .gid.nms <- mt[.nms, "gene_id"]
@@ -116,7 +116,7 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
             gr.introns <- GRanges()
         }
         ## utrs
-        message("------utr...")    
+        message("------utr...")
         if(length(exons) && length(cdss)){
             suppressWarnings(irl.utrs <- setdiff(ranges(exons), ranges(cdss)))
             ir.utrs <- unlist(irl.utrs)
@@ -130,7 +130,7 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
                 names(gr.utrs) <- NULL
                 values(gr.utrs)$type <-     as.character(values(gr.utrs)$type)
             }else{
-                gr.utrs <- GRanges()            
+                gr.utrs <- GRanges()
             }
         }else{
             gr.utrs <- GRanges()
@@ -142,7 +142,7 @@ setMethod("crunch", "TranscriptDb", function(obj, which,
         if(!length(res))
             res <- GRanges()
         res$type <- factor(res$type)
-        
+
         if(type == "reduce"){
             if(length(res)){
                 cds.s <- reduce(res[values(res)$type == "cds"])
@@ -213,7 +213,7 @@ setMethod("crunch", "BamFile", function(obj, which, ...,
                                         truncate.fun = NULL,
                                         ratio = 0.0025){
 
-    type <- match.arg(type)    
+    type <- match.arg(type)
     ## require(Rsamtools)
     if(type == "gapped.pair"){
         message("Read GAlignments from BamFile...")
