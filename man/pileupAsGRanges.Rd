@@ -8,7 +8,7 @@ single base unit in a given region, this allows the downstream
 mismatch summary analysis.}
 \details{It's a wrapper around \code{applyPileup} function in Rsamtools
 package, more detailed control could be found under manual of
-PileupParam function in Rsamtools. \code{pileupAsGRanges} function
+ApplyPileupsParam function in Rsamtools. \code{pileupAsGRanges} function
 return a GRanges object which including summary of nucleotides,
 depth, bam file path. This object could be read directly into
 \code{pileupGRangesAsVariantTable} function for mismatch
@@ -21,10 +21,10 @@ reads, \code{bam} for file path.}
 \arguments{\item{bams}{A character which specify the bam file path.}
 \item{regions}{A GRanges object specifying the region to be
 summarized. This passed to \code{which} arguments in
-\code{PileupParam}.}
+\code{ApplyPileupsParam}.}
 \item{DNABases}{Nucleotide type you want to summarize in the result
 and in specified order. It must be one or more of A,C,G,T,N.}
-\item{...}{Extra parameters passed to \code{PileupParam}.}
+\item{...}{Extra parameters passed to \code{ApplyPileupsParam}.}
 }
 \examples{
 \dontrun{

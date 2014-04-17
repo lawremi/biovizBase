@@ -62,7 +62,7 @@ importMethodsFrom(Biostrings, getSeq, letterFrequency,
 
 ## Rsamtools
 importClassesFrom(Rsamtools, BamFile)
-importFrom(Rsamtools, index, scanBamFlag, PileupFiles, PileupParam)
+importFrom(Rsamtools, index, scanBamFlag, PileupFiles, ApplyPileupsParam)
 importMethodsFrom(Rsamtools, ScanBamParam, applyPileups, scanBam)
 
 ## GenomicAlignments

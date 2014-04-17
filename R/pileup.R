@@ -4,7 +4,7 @@
 ##'
 ##' It's a wrapper around \code{applyPileup} function in Rsamtools
 ##' package, more detailed control could be found under manual of
-##' PileupParam function in Rsamtools. \code{pileupAsGRanges} function
+##' ApplyPileupsParam function in Rsamtools. \code{pileupAsGRanges} function
 ##' return a GRanges object which including summary of nucleotides,
 ##' depth, bam file path. This object could be read directly into
 ##' \code{pileupGRangesAsVariantTable} function for mismatch
@@ -13,10 +13,10 @@
 ##' @param bams A character which specify the bam file path.
 ##' @param regions A GRanges object specifying the region to be
 ##' summarized. This passed to \code{which} arguments in
-##' \code{PileupParam}.
+##' \code{ApplyPileupsParam}.
 ##' @param DNABases Nucleotide type you want to summarize in the result
 ##' and in specified order. It must be one or more of A,C,G,T,N.
-##' @param ... Extra parameters passed to \code{PileupParam}.
+##' @param ... Extra parameters passed to \code{ApplyPileupsParam}.
 ##' @return A GRanges object, each row is one single base unit. and
 ##' elementMetadata contains summary about this position about all
 ##' nucleotides specified by DNABases. and \code{depth} for total
@@ -26,7 +26,7 @@ pileupAsGRanges <- function(bams, regions,
                             DNABases = c("A", "C", "G", "T", "N"),
                             ...) {
   pileupFiles <- PileupFiles(bams)
-  pileupParams <- PileupParam(which = regions, ...)
+  applyPileupsParam <- ApplyPileupsParam(which = regions, ...)
   ## what if it's multiple bam files
   bamNames <- names(bams)
   if (is.null(bamNames))
@@ -43,7 +43,8 @@ pileupAsGRanges <- function(bams, regions,
     })
     do.call(c, grl[!is.null(grl)])
   }
-  gr <- do.call(c, applyPileups(pileupFiles, pileupFun, param = pileupParams))
+  gr <- do.call(c, applyPileups(pileupFiles, pileupFun,
+                                param = applyPileupsParam))
   seqinfo(gr) <- seqinfo(regions)
   gr
 }
