@@ -46,12 +46,14 @@ importMethodsFrom(IRanges, split, sort, as.factor,
                   subsetByOverlaps, togroup, values, "values<-", width, stack)
 importClassesFrom(IRanges, IRanges)
 
+## GenomeInfoDb
+import(GenomeInfoDb)
+
 ## GenomicRanges
-importFrom(GenomicRanges, keepSeqlevels, GRanges)
-importMethodsFrom(GenomicRanges, genome, grglist, seqinfo, seqlengths,
-                  "seqlengths<-", seqlevels, seqlevels0, "seqlevels<-", seqnames,
-                  ranges, "ranges<-", start, end,
-                  width, "start<-", "end<-", "width<-", seqlevelsStyle,
+importFrom(GenomicRanges, GRanges)
+importMethodsFrom(GenomicRanges, grglist, 
+                  seqnames, ranges, "ranges<-", start, end, width,
+                  "start<-", "end<-", "width<-",
                   strand, show, "elementMetadata<-", elementMetadata,
                   as.data.frame)
 
@@ -80,11 +82,6 @@ importMethodsFrom(GenomicFeatures, transcripts, cdsBy, cdsByOverlaps, exonsBy,
 
 ## AnnotationDbi
 importFrom(AnnotationDbi, unlist2)
-
-## GenomeInfoDb
-importFrom(GenomeInfoDb,
-           seqlevelsStyle,
-           "seqlevelsStyle<-")
 
 ## VariantAnnotation
 importClassesFrom(VariantAnnotation, VRanges)
