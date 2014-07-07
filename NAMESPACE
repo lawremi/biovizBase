@@ -31,15 +31,16 @@ importFrom(dichromat, colorschemes)
 
 ## S4Vectors
 importFrom(S4Vectors, metadata, "metadata<-")
+importMethodsFrom(S4Vectors, as.factor, "%in%")
 
 ## IRanges
 importFrom(IRanges, IRanges, seqapply, breakInChunks)
-importMethodsFrom(IRanges, split, sort, as.factor,
+importMethodsFrom(IRanges, split, sort,
                   unlist, restrict,
                   as.data.frame, as.matrix,
                   length,
                   "[","[<-","[[", "[[<-","$",
-                  "%in%", show,
+                  show,
                   countOverlaps, disjointBins, elementLengths, end, endoapply,
                   findOverlaps, gaps, pgap, punion,
                   ranges, reduce, resize, shift, start, "start<-",
