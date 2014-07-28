@@ -1,10 +1,10 @@
 setGeneric("crunch", function(obj, ...) standardGeneric("crunch"))
-setMethod("crunch", "TranscriptDb", function(obj, which,
-                                             columns = c("tx_id", "tx_name","gene_id"),
-                                             type = c("all", "reduce"),
-                                             truncate.gaps = FALSE,
-                                             truncate.fun = NULL,
-                                             ratio = 0.0025){
+setMethod("crunch", "TxDb", function(obj, which,
+                                     columns = c("tx_id", "tx_name","gene_id"),
+                                     type = c("all", "reduce"),
+                                     truncate.gaps = FALSE,
+                                     truncate.fun = NULL,
+                                     ratio = 0.0025){
 
     type <- match.arg(type)
     if(is.list(which)){

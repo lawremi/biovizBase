@@ -1,15 +1,15 @@
 \name{crunch}
 \alias{crunch}
-\alias{crunch,TranscriptDb-method}
+\alias{crunch,TxDb-method}
 \alias{crunch,GAlignments-method}
 \alias{crunch,BamFile-method}
 \title{Fetching GRanges from various data source}
 \description{
   Fetching Granges from various data source, currently supported objects
-  are TranscriptDb, GAligment and BamFile. 
+  are TxDb, GAlignments and BamFile. 
 }
 \usage{
-\S4method{crunch}{TranscriptDb}(obj, which, columns = c("tx_id", "tx_name","gene_id"),
+\S4method{crunch}{TxDb}(obj, which, columns = c("tx_id", "tx_name","gene_id"),
        type = c("all", "reduce"), truncate.gaps = FALSE,
        truncate.fun = NULL, ratio = 0.0025)
 \S4method{crunch}{GAlignments}(obj, which, truncate.gaps = FALSE,
@@ -19,10 +19,10 @@
 }
 \arguments{
   \item{obj}{
-    supported objects are \code{TranscriptDb}, \code{GAligment} and \code{BamFile}. 
+    supported objects are \code{TxDb}, \code{GAlignments} and \code{BamFile}. 
   }
   \item{which}{
-    GRanges object. For TranscriptDb object, could aslo be a list. 
+    GRanges object. For TxDb object, could aslo be a list. 
   }
   \item{columns}{
     columns to include in the output.

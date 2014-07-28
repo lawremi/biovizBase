@@ -76,7 +76,7 @@ importFrom(GenomicAlignments, cigar, readGAlignmentsFromBam)
 importClassesFrom(GenomicAlignments, GAlignments)
 
 ## GenomicFeatures
-importClassesFrom(GenomicFeatures,TranscriptDb)
+importClassesFrom(GenomicFeatures, TxDb)
 importMethodsFrom(GenomicFeatures, transcripts, cdsBy, cdsByOverlaps, exonsBy,
                   exonsByOverlaps, isActiveSeq, "isActiveSeq<-", transcripts,
                   transcriptsByOverlaps)

@@ -129,7 +129,7 @@ setMethod("mold", c("Views"), function(data){
 
 ## })
 
-## setMethod("mold", c("TranscriptDb"), function(data){
+## setMethod("mold", c("TxDb"), function(data){
   
 ## })
 

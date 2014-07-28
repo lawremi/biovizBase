@@ -1,6 +1,6 @@
 \name{getYLab-method}
 \alias{getYLab}
-\alias{getYLab,TranscriptDb-method}
+\alias{getYLab,TxDb-method}
 \alias{getXLab-method}
 \alias{getXLab}
 \alias{getXLab,GRanges-method}
@@ -11,14 +11,14 @@
   parse y label information, object specific.
 }
 \usage{
-\S4method{getYLab}{TranscriptDb}(obj)
+\S4method{getYLab}{TxDb}(obj)
 \S4method{getXLab}{GRanges}(obj)
 \S4method{getXLab}{GRangesList}(obj)
 \S4method{getXLab}{GAlignments}(obj)
 }
 \arguments{
   \item{obj}{
-    A \code{TranscriptDb} object.
+    A \code{TxDb} object.
   }
 }
 \value{

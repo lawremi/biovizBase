@@ -1,6 +1,6 @@
 ## going to be moved to biovizBase
 setGeneric("getYLab", function(obj,...) standardGeneric("getYLab"))
-setMethod("getYLab", "TranscriptDb", function(obj){
+setMethod("getYLab", "TxDb", function(obj){
   md <- metadata(obj)
   ds <- md[md[,1] == "Data source",2]
   lb <- character()

@@ -310,14 +310,14 @@ fetch <- function(obj, which, ..., gene.id,
 
     ## type <- match.arg(type)
     if(length(type) >1){
-        if(is(obj,"TranscriptDb"))
+        if(is(obj,"TxDb"))
             type <- "all"
         if(is(obj,"BamFile"))
             type <- "gapped.pair"
     }
-    if(is(obj, "TranscriptDb")){
+    if(is(obj, "TxDb")){
         if(!(type %in% .txdb.type))
-            stop("type for TranscriptDb must be ", .txdb.type)
+            stop("type for TxDb must be ", .txdb.type)
         if(is.list(which)){
             message("Parsing exons based on which(list) arguments")
             temp <- exons(obj, vals = which, columns = columns)
@@ -466,7 +466,7 @@ fetch <- function(obj, which, ..., gene.id,
     }
     if(is(obj, "BamFile")){
         if(!(type %in% .bamfile.type))
-            stop("type for TranscriptDb must be ", .bamfile.type)
+            stop("type for TxDb must be ", .bamfile.type)
         ## require(Rsamtools)
         if(type == "gapped.pair"){
             message("Read GappedAlignments from BamFile...")
