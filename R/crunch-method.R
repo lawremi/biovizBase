@@ -118,7 +118,8 @@ setMethod("crunch", "TxDb", function(obj, which,
         ## utrs
         message("------utr...")
         if(length(exons) && length(cdss)){
-            suppressWarnings(irl.utrs <- setdiff(ranges(exons), ranges(cdss)))
+            txnms <- intersect(names(exons), names(cdss))
+            irl.utrs <- setdiff(ranges(exons[txnms]), ranges(cdss[txnms]))
             ir.utrs <- unlist(irl.utrs)
             if(length(ir.utrs)){
                 .nms <- names(ir.utrs)
