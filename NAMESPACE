@@ -29,25 +29,8 @@ importFrom(dichromat, colorschemes)
 ### Bioconductor packages
 ###
 
-## S4Vectors
-importFrom(S4Vectors, metadata, "metadata<-")
-importMethodsFrom(S4Vectors, as.factor, "%in%")
-
-## IRanges
-importFrom(IRanges, IRanges, seqapply, breakInChunks)
-importMethodsFrom(IRanges, split, sort,
-                  unlist, restrict,
-                  as.data.frame, as.matrix,
-                  length,
-                  "[","[<-","[[", "[[<-","$",
-                  show,
-                  countOverlaps, disjointBins, elementLengths, end, endoapply,
-                  findOverlaps, gaps, pgap, punion,
-                  ranges, reduce, resize, shift, start, "start<-",
-                  subsetByOverlaps, togroup, values, "values<-", width, stack)
-importClassesFrom(IRanges, IRanges)
-
-## GenomeInfoDb
+import(S4Vectors)
+import(IRanges)
 import(GenomeInfoDb)
 
 ## GenomicRanges
