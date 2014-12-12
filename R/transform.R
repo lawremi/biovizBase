@@ -626,11 +626,6 @@ transformGRangesForEvenSpace <- function(gr){
   gr
 }
 
-validEven <- function(data){
-  findOverlaps(gr, ignore.self = TRUE)
-  gr2 <- GRanges("chr1", IRanges(c(1, 10), width = 5))
-  countOverlaps(gr)
-}
 transformToEven <- function(data){
   st <- start(range(data))
   ed <- end(range(data))

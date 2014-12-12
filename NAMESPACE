@@ -65,7 +65,7 @@ importMethodsFrom(GenomicFeatures, transcripts, cdsBy, cdsByOverlaps, exonsBy,
                   transcriptsByOverlaps)
 
 ## AnnotationDbi
-importFrom(AnnotationDbi, unlist2)
+importFrom(AnnotationDbi, unlist2, select, mappedRkeys, revmap, toTable)
 
 ## VariantAnnotation
 importClassesFrom(VariantAnnotation, VRanges)

@@ -226,7 +226,7 @@ genBrewerBlindPalInfo <- function(){
   res <- res[c(idx.seq, idx.div, idx.qual),]
   res[rownames(res) %in% c("Dark2", "Set2"), 1] <- 3
   res[rownames(res) %in% c("Paired"), 1] <- 4
-  res
+  res[, c("maxcolors", "category"), drop=FALSE]
 }
 
 
