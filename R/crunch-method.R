@@ -218,8 +218,8 @@ setMethod("crunch", "BamFile", function(obj, which, ...,
     ## require(Rsamtools)
     if(type == "gapped.pair"){
         message("Read GAlignments from BamFile...")
-        ga <- readGAlignmentsFromBam(obj,
-                                     param = ScanBamParam(which = which), use.names = TRUE, ...)
+        ga <- readGAlignments(obj, param = ScanBamParam(which = which),
+                                   use.names = TRUE, ...)
 
         res <- crunch(ga)
     }
@@ -234,7 +234,8 @@ setMethod("crunch", "BamFile", function(obj, which, ...,
         res.mb <- scanBamGRanges(obj, which,
                                  flag = scanBamFlag(isFirstMateRead = TRUE))
         message("Read GAlignments from BamFile...")
-        ga <- readGAlignmentsFromBam(obj, param = ScanBamParam(which = which), use.names = TRUE, ...)
+        ga <- readGAlignments(obj, param = ScanBamParam(which = which),
+                                   use.names = TRUE, ...)
 
         res.gp <- crunch(ga)
         message("Combine...")

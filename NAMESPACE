@@ -55,7 +55,7 @@ importFrom(Rsamtools, index, scanBamFlag, PileupFiles, ApplyPileupsParam)
 importMethodsFrom(Rsamtools, ScanBamParam, applyPileups, scanBam)
 
 ## GenomicAlignments
-importFrom(GenomicAlignments, cigar, readGAlignmentsFromBam)
+importFrom(GenomicAlignments, cigar, readGAlignments)
 importClassesFrom(GenomicAlignments, GAlignments)
 
 ## GenomicFeatures

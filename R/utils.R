@@ -300,7 +300,7 @@ fetch <- function(obj, which, ..., gene.id,
                   ratio = 0.0025,
                   resize.extra = 10,
                   include.level = TRUE,
-                  use.name = TRUE,
+                  use.names = TRUE,
                   columns = c("tx_id", "tx_name","gene_id"),
                   type = c("all", "single", "exons.reduce", "exons.all",
                       "exons.geneid",  "gapped.pair", "raw", "all")){
@@ -455,7 +455,7 @@ fetch <- function(obj, which, ..., gene.id,
         if(!length(obj))
             stop("No entry in the GappedAlignments data")
         if(is.null(names(obj)))
-            stop("Missing qname, please make use.name = TRUE, when reading GappedAlignments")
+            stop("Missing qname, please make use.names = TRUE, when reading GappedAlignments")
         grg <- grglist(obj)
         grg.u <- stack(grg, ".grl.name")
         message("extracting information...")
@@ -470,9 +470,8 @@ fetch <- function(obj, which, ..., gene.id,
         ## require(Rsamtools)
         if(type == "gapped.pair"){
             message("Read GappedAlignments from BamFile...")
-            ga <- readGAlignmentsFromBam(obj,
-                                         param = ScanBamParam(which = which),
-                                         use.names = use.name, ...)
+            ga <- readGAlignments(obj, param = ScanBamParam(which = which),
+                                       use.names = use.names, ...)
             res <- fetch(ga)
         }
 
@@ -486,9 +485,8 @@ fetch <- function(obj, which, ..., gene.id,
             res.mb <- scanBamGRanges(obj, which,
                                      flag = scanBamFlag(isFirstMateRead = TRUE))
             message("Read GappedAlignments from BamFile...")
-            ga <- readGAlignmentsFromBam(obj,
-                                         param = ScanBamParam(which = which),
-                                         use.names = use.name, ...)
+            ga <- readGAlignments(obj, param = ScanBamParam(which = which),
+                                       use.names = use.names, ...)
             res.gp <- fetch(ga)
             message("Combine...")
             nms <- values(res.mb)$qname

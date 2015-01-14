@@ -42,7 +42,7 @@
     numeric value, shrinking ratio.
   }
   \item{...}{
-    arguments passed to function \code{readGAlignmentsFromBam}.
+    arguments passed to function \code{readGAlignments}.
   }
 }
 \value{

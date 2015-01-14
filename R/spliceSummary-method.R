@@ -36,8 +36,8 @@ setMethod("spliceSummary", c("character", "GRangesList"), function(obj,
   ## if(missing(which))
   which <- range(reduce(unlist(model)))
   
-  ga <- readGAlignmentsFromBam(obj, param = ScanBamParam(which = which),
-                                use.name = TRUE)
+  ga <- readGAlignments(obj, param = ScanBamParam(which = which),
+                             use.names = TRUE)
   ## reduce model
   ## assumption here is that: contains unoverlaped exons.
   ## must contain exon id            
@@ -98,8 +98,8 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
   ## if(missing(which))
   which <- range(model)
   
-  ga <- readGAlignmentsFromBam(obj, param = ScanBamParam(which = which),
-                                use.name = TRUE)
+  ga <- readGAlignments(obj, param = ScanBamParam(which = which),
+                             use.names = TRUE)
   ## first leave only junction read
   grl <- grglist(ga)
   idx <- elementLengths(grl) > 1
