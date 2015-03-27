@@ -132,8 +132,7 @@ setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
         return(GRanges())
     if(!length(facets))
         facets <- as.formula(~seqnames)
-    allvars <- all.vars(as.formula(facets))
-    allvars.extra <- allvars[!allvars %in% c(".", "seqnames")]
+    allvars.extra <- colnames(mcols(obj))
     if(!is.null(group.name)){
         if(!group.name %in% colnames(values(obj)))
             stop(group.name, " is not in obj")
