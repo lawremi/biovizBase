@@ -29,10 +29,10 @@ setMethod("estimateCoverage", "BamFile", function(x, maxBinSize = 2^14) {
   METABIN <- NBIN + 1
 
   makeBinRanges <- function() {
-    unlist(seqapply(BINSIZES[BINSIZES <= maxBinSize], function(x) {
+    unlist(List(lapply(BINSIZES[BINSIZES <= maxBinSize], function(x) {
       chunks <- breakInChunks(TOTALSIZE, x)
       IRanges(start(chunks), end(chunks))
-    }))
+    })))
   }
 
   bin_ranges <- makeBinRanges()
