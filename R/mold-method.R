@@ -65,7 +65,7 @@ setMethod("mold", c("SummarizedExperiment"), function(data, assay.id = 1){
   if(length(ays) > 1)
     message("Assay index: ", assay.id, " used")
   cd <- as.data.frame(colData(data))
-  rd <- as.data.frame(rowData(data))
+  rd <- as.data.frame(rowRanges(data))
   df <- mold(ays[[assay.id]])
   cd.e <- cd[df$x, ]
   rd.e <- rd[df$y, ]
