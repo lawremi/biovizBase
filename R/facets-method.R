@@ -18,7 +18,6 @@ strip_formula_dots <- function(formula){
   formula
 }
 
-setOldClass("formula")
 setGeneric("splitByFacets", function(object, facets, ...) standardGeneric("splitByFacets"))
 
 setMethod("splitByFacets", c("GRanges", "formula"), function(object, facets){
