@@ -59,6 +59,22 @@ setMethod("mold", c("ExpressionSet"), function(data){
   res
 })
 
+setMethod("mold", c("RangedSummarizedExperiment"), function(data, assay.id = 1){
+  ays <- assays(data)
+  stopifnot(length(assay.id) == 1 || length(assay.id) <= length(ays))
+  if(length(ays) > 1)
+    message("Assay index: ", assay.id, " used")
+  cd <- as.data.frame(colData(data))
+  rd <- as.data.frame(rowRanges(data))
+  df <- mold(ays[[assay.id]])
+  cd.e <- cd[df$x, ]
+  rd.e <- rd[df$y, ]
+  res <- cbind(df, cd.e, rd.e)
+  res
+})
+
+## Remove this method once the transition from SummarizedExperiment to
+## RangedSummarizedExperiment is complete. [H. Pages - May 12, 2015]
 setMethod("mold", c("SummarizedExperiment"), function(data, assay.id = 1){
   ays <- assays(data)
   stopifnot(length(assay.id) == 1 || length(assay.id) <= length(ays))
@@ -77,7 +93,7 @@ setMethod("mold", c("SummarizedExperiment"), function(data, assay.id = 1){
 ##                                                    type = c("geno", "info", "fixed"),
 ##                                                    assay.id = 1){
 ##   type <- match.arg(type)  
-##   hdr <- exptData(object)[["header"]]
+##   hdr <- metadata(object)[["header"]]
 ##   nms <- rownames(geno(hdr))
 ##   res <- switch(type,
 ##                 geno = {

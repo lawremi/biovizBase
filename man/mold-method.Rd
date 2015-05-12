@@ -7,6 +7,7 @@
 \alias{mold,matrix-method}
 \alias{mold,eSet-method}
 \alias{mold,ExpressionSet-method}
+\alias{mold,RangedSummarizedExperiment-method}
 \alias{mold,SummarizedExperiment-method}
 \alias{mold,Views-method}
 \alias{mold,Rle-method}

@@ -32,16 +32,8 @@ importFrom(dichromat, colorschemes)
 import(S4Vectors)
 import(IRanges)
 import(GenomeInfoDb)
-
-## GenomicRanges
-importFrom(GenomicRanges, GRanges)
-importMethodsFrom(GenomicRanges, grglist, 
-                  seqnames, ranges, "ranges<-", start, end, width,
-                  "start<-", "end<-", "width<-",
-                  strand, show, "elementMetadata<-", elementMetadata,
-                  as.data.frame)
-
-importClassesFrom(GenomicRanges, GRanges, GRangesList, GenomicRanges)
+import(GenomicRanges)
+import(SummarizedExperiment)
 
 ## Biostrings
 importFrom(Biostrings, AA_ALPHABET, DNA_ALPHABET, RNA_ALPHABET,
