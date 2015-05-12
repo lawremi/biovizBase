@@ -27,7 +27,7 @@
 \S4method{mold}{matrix}(data)
 \S4method{mold}{eSet}(data)
 \S4method{mold}{ExpressionSet}(data)
-\S4method{mold}{SummarizedExperiment}(data, assay.id = 1)
+\S4method{mold}{RangedSummarizedExperiment}(data, assay.id = 1)
 \S4method{mold}{Views}(data)
 \S4method{mold}{Rle}(data)
 \S4method{mold}{RleList}(data)
