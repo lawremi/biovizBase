@@ -20,7 +20,9 @@ setMethod("crunch", "TxDb", function(obj, which,
         stop(seqnms, " is not matched with seqlevels of your object, please rename your 'which' arguments ")
     }
     ## seqlevels(obj, force = TRUE) <- seqnms
-    on.exit(seqlevels0(obj))
+    on.exit(restoreSeqlevels(obj))  # needed only because TxDb are reference
+                                    # objects (unlike R objects in general that
+                                    # have a copy-on-change semantics)
 
     ## system.time(cdss <- cdsBy(obj, "tx")) #2.552s
 
