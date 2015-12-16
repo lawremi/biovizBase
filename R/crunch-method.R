@@ -139,43 +139,10 @@ setMethod("crunch", "TxDb", function(obj, which,
             gr.utrs <- GRanges()
         }
         ## combine
-        message("aggregating...")
         res <- c(gr.exons, gr.cdss, gr.introns, gr.utrs)
 
-        if(!length(res))
-            res <- GRanges()
-        res$type <- factor(res$type)
-
-        if(type == "reduce"){
-            if(length(res)){
-                cds.s <- reduce(res[values(res)$type == "cds"])
-                values(cds.s)$type <- factor("cds")
-                exon.s <- reduce(res[values(res)$type == "exon"])
-                values(exon.s)$type <- factor("exon")
-                utr.s <- setdiff(exon.s, cds.s)
-                values(utr.s)$type <- factor("utr")
-                gap.s <- gaps(cds.s, start = min(start(cds.s)),
-                              end = max(end(cds.s)))
-                values(gap.s)$type <- factor("gap")
-                res <- c(cds.s, utr.s, gap.s)
-                ## change it to *
-                strand(res) <- "*"
-            }
-        }
-        if(truncate.gaps){
-            message("truncating ...")
-            if(is.null(truncate.fun)){
-                if("gap" %in% unique(values(res)$type))
-                    idx <- values(res)$type %in% c("utr", "cds")
-                res.s <- reduce(res[idx], ignore.strand = TRUE)
-                truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
-                                             maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
-                                                    ratio = ratio))
-            }
-            res <- truncate.fun(res)
-        }
-        message("Done")
-        res
+        return(reduceNtruncate(res, type=type, truncate.gaps=truncate.gaps,
+                               truncate.fun=truncate.fun, ratio=ratio))
     }
 })
 
@@ -288,4 +255,185 @@ scanBamGRanges <- function(file, which, what = c("rname", "strand", "pos", "qwid
     bam.gr <- do.call("c", res)
 }
 
+
+####============================================================
+##  crunch method from biovizBase
+##
+##  which can be a GRanges object or an object extending BasicFilter, or a
+##  list of such filter objects.
+####------------------------------------------------------------
+setMethod("crunch", "EnsDb", function(obj, which,
+                                      columns = c("tx_id",
+                                                  "gene_name",
+                                                  "gene_id"),
+                                      type = c("all", "reduce"),
+                                      truncate.gaps = FALSE,
+                                      truncate.fun = NULL,
+                                      ratio = 0.0025){
+    type <- match.arg(type)
+    ## which can be a single (!) GRanges an object extending BasicFilter or
+    ## a list of BasicFilter objects.
+    if(is(which, "list")){
+        ## Has to be a list of objects extending BasicFilter.
+        if(!all(vapply(which, is, logical(1L), "BasicFilter"))){
+            stop("Which should be either a GRanges object, an object extending ",
+                 "BasicFilter or a list of objects extending BasicFilter!")
+        }
+        exFilter <- which
+    }else{
+        if(!is(which, "GenomicRanges") & !is(which, "BasicFilter"))
+                stop("Which should be either a GRanges object, an object extending ",
+                     "BasicFilter or a list of objects extending BasicFilter!")
+    }
+    if(is(which, "GenomicRanges")){
+        if(length(which) == 0){
+            message("No transcripts found at this region.")
+            return(GRanges())
+        }
+        if(length(which) > 1)
+            stop("'which' has to be a single GRanges object.")
+        if(!is.na(genome(which))){
+            if(unname(genome(which)) != unique(unname(genome(obj))))
+                stop("Genome versions do not fit! Argument 'which' has ",
+                     unname(genome(which)), " argument 'obj' ",
+                     unname(unique(genome(which))), "!")
+        }
+        ## Check if we've got the seqnames.
+        if(!(seqlevels(which) %in% seqlevels(obj)))
+            stop(seqlevels(which), " does not match any seqlevel in argument 'obj'!")
+        exFilter <- GRangesFilter(which, condition="overlapping")
+    }
+    if(is(which, "BasicFilter"))
+        exFilter <- which
+    ## Check input argument 'columns':
+    notAvailable <- !(columns %in% listColumns(obj))
+    if(any(notAvailable)){
+        if(all(notAvailable))
+            stop("None of the columns specified by arguments 'columns' are available!",
+                 " Allowed values are:", paste(listColumns(obj), collapse=", "), ".")
+        ## Reducing to those which are allowed...
+        warning("Columns ", paste(columns[notAvailable], collapse=", "), " are not",
+                " available in the database and have been removed.")
+        columns <- columns[!notAvailable]
+    }
+    ## Approach:
+    ## 1) Get all exons in that region and retrieve also the tx_coding_seq_start.
+    ## We're fetching the data just once and calculating everything we need from that,
+    ## i.e. cds, utr and introns.
+    message("Fetching data...", appendLF=FALSE)
+    requiredCols <- c("tx_cds_seq_start", "tx_cds_seq_end", "exon_id", "tx_id")
+    ## Forcing tx_id on the columns:
+    columns <- unique(c(columns, "tx_id"))
+    ## In order to solve also the "overlapping" condition I have first to fetch the transcripts
+    ## in the region and their exons. That way we get, for a GRangesFilter or GRanges all
+    ## transcripts that have an exon or an intron at the specified region.
+    txInRegion <- transcripts(obj, filter=exFilter)
+    if(length(txInRegion) == 0){
+        message("No transcripts found at this region.")
+        return(GRanges())
+    }
+    regExons <- exons(obj, filter=TxidFilter(unique(txInRegion$tx_id)),
+                      columns=unique(c(requiredCols, columns)))
+    ## Simple sanitizing: check if what we got is on the same chromosome!
+    if(length(unique(as.character(seqnames(regExons)))) > 1)
+        stop("Got features from different chromosomes! Please adjust argument",
+             " 'which' in order to fetch only features from a single chromosome.")
+    message("OK")
+    if(length(regExons) > 0){
+        message("Parsing exons...", appendLF=FALSE)
+        ## Get an DataFrame that we can use as mcols for the GRanges:
+        mDf <- unique(mcols(regExons)[, columns])
+        ## Actually, with this I have all I need.
+        ## 2) Define introns.
+        regExonsList <- split(regExons, regExons$tx_id)
+        message("OK\nDefining introns...", appendLF=FALSE)
+        ints <- gaps(ranges(regExonsList))
+        ints <- unlist(ints)
+        if(length(ints) > 0){
+            regIntrons <- GRanges(seqnames=unique(seqnames(regExons)), ranges=ints,
+                                  strand="*",
+                                  mDf[match(names(ints), mDf$tx_id), ])
+            regIntrons$type <- "gap"
+        }else{
+            regIntrons <- GRanges()
+        }
+        message("OK\nDefining UTRs...", appendLF=FALSE)
+        ## 3) Define UTRs.
+        codingTx <- regExons[!is.na(regExons$tx_cds_seq_end)]
+        if(length(codingTx) > 0){
+            ## Define the whole CDS region per tx
+            codingReg <- GRanges(seqnames=seqnames(codingTx),
+                                 ranges=IRanges(codingTx$tx_cds_seq_start,
+                                                codingTx$tx_cds_seq_end),
+                                 strand=strand(codingTx),
+                                 tx_id=codingTx$tx_id)
+            codingTx <- split(codingTx, codingTx$tx_id)
+            ## Subset to one CDS region per tx and split
+            codingReg <- codingReg[match(names(codingTx), codingReg$tx_id)]
+            codingReg <- split(codingReg, codingReg$tx_id)
+            regUTRs <- unlist(psetdiff(codingTx, codingReg))
+            mcols(regUTRs) <- mDf[match(names(regUTRs), mDf$tx_id), ]
+            regUTRs$type <- "utr"
+            message("OK\nDefining CDS...", appendLF=FALSE)
+            ## 4) Define CDS
+            regCDSs <- unlist(pintersect(codingTx, codingReg))
+            mcols(regCDSs) <- mDf[match(names(regCDSs), mDf$tx_id), ]
+            regCDSs$type <- "cds"
+        }else{
+            regUTRs <- GRanges()
+            regCDSs <- GRanges()
+        }
+        message("OK\n", appendLF=FALSE)
+        regExons <- regExons[, columns]
+        regExons$type <- "exon"
+        ensRes <- c(regExons, regIntrons, regUTRs, regCDSs)
+    }else{
+        warning("Did not find any transcript at the specified region!")
+        return(GRanges())
+    }
+    return(reduceNtruncate(ensRes, type=type, truncate.gaps=truncate.gaps,
+                           truncate.fun=truncate.fun, ratio=ratio))
+
+})
+
+## Just some simple helper function to avoid repeating code for TxDb and EnsDb.
+reduceNtruncate <- function(res, type=c("all", "reduce"),
+                            truncate.gaps=FALSE, truncate.fun=NULL,
+                            ratio = 0.0025){
+        message("aggregating...")
+        if(!length(res))
+            res <- GRanges()
+        res$type <- factor(res$type)
+
+        if(type == "reduce"){
+            if(length(res)){
+                cds.s <- reduce(res[values(res)$type == "cds"])
+                values(cds.s)$type <- factor("cds")
+                exon.s <- reduce(res[values(res)$type == "exon"])
+                values(exon.s)$type <- factor("exon")
+                utr.s <- setdiff(exon.s, cds.s)
+                values(utr.s)$type <- factor("utr")
+                gap.s <- gaps(cds.s, start = min(start(cds.s)),
+                              end = max(end(cds.s)))
+                values(gap.s)$type <- factor("gap")
+                res <- c(cds.s, utr.s, gap.s)
+                ## change it to *
+                strand(res) <- "*"
+            }
+        }
+        if(truncate.gaps){
+            message("truncating ...")
+            if(is.null(truncate.fun)){
+                if("gap" %in% unique(values(res)$type))
+                    idx <- values(res)$type %in% c("utr", "cds")
+                res.s <- reduce(res[idx], ignore.strand = TRUE)
+                truncate.fun <- shrinkageFun(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                             maxGap(gaps(res.s, min(start(res.s)), max(end(res.s))),
+                                                    ratio = ratio))
+            }
+            res <- truncate.fun(res)
+        }
+        message("Done")
+        return(res)
+}
 

@@ -62,6 +62,11 @@ importFrom(AnnotationDbi, unlist2, select, mappedRkeys, revmap, toTable)
 ## VariantAnnotation
 importClassesFrom(VariantAnnotation, VRanges)
 
+## ensembldb
+importClassesFrom(ensembldb, GRangesFilter, BasicFilter, TxidFilter)
+importMethodsFrom(ensembldb, listColumns, exons, transcripts)
+importFrom(ensembldb, GRangesFilter, TxidFilter)
+
 ## ======================================================================
 ##    export
 ## ======================================================================

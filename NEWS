@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.19.1
+-------------------------
+
+NEW FEATURES
+
+    o crunch method supports now EnsDb objects and related filter objects.
+
+
 CHANGES IN VERSION 1.3.8
 ------------------------
 
@@ -9,7 +17,7 @@ NEW FEATURES
 Bug fixing
 
     o fix warning
-    o fix bugs in circular view 
+    o fix bugs in circular view
 
 
 CHANGES IN VERSION 1.1.16
