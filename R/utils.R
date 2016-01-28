@@ -140,11 +140,11 @@ setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
         grl <- endoapply(grl, function(dt){
             res <- split(dt, values(dt)[,group.name])
             gps <- gaps(ranges(res))
-            idx <- elementLengths(gps) > 0
+            idx <- elementNROWS(gps) > 0
             res.sub <- res[idx,]
             stds <- unlist(lapply(res.sub, function(x) as.character(strand(x))[1]))
             gps.sub <- gps[idx,]
-            dfs <- values(unlist(res.sub))[cumsum(elementLengths(res.sub)),c(allvars.extra, "stepping"),
+            dfs <- values(unlist(res.sub))[cumsum(elementNROWS(res.sub)),c(allvars.extra, "stepping"),
                                            drop = FALSE]
 
             ir <- unlist(gps.sub)
@@ -458,8 +458,8 @@ fetch <- function(obj, which, ..., gene.id,
         grg <- grglist(obj)
         grg.u <- stack(grg, ".grl.name")
         message("extracting information...")
-        values(grg.u)$junction <- rep(ifelse(elementLengths(grg)>1, TRUE, FALSE),
-                                      times = elementLengths(grg))
+        values(grg.u)$junction <- rep(ifelse(elementNROWS(grg)>1, TRUE, FALSE),
+                                      times = elementNROWS(grg))
         names(grg.u) <- NULL
         res <- grg.u
     }

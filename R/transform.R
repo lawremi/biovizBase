@@ -455,7 +455,7 @@ transformToLinkInCircle <- function(data, linked.to, space.skip = 0.1, trackWidt
 
 ## ddplyFun <- function(data, .fun, ..., window = 1e5){
 ##   grl <- split(data, seqnames(data))
-##   idx <- elementLengths(grl) > 0
+##   idx <- elementNROWS(grl) > 0
 ##   grl <- endoapply(grl[idx], function(gr){
 ##     ## let's make it more works for multiple seqnames
 ##     bks <- seq(1, max(end(gr)), by = window)

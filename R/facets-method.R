@@ -36,7 +36,7 @@ setMethod("splitByFacets", c("GRanges", "formula"), function(object, facets){
   }}
   if(length(allvars) == 1)
     res <- split(object, seqnames(object))
-  res <- res[elementLengths(res)>0]
+  res <- res[elementNROWS(res)>0]
   res
 })
 
@@ -47,20 +47,20 @@ setMethod("splitByFacets", c("GRanges", "GRanges"), function(object, facets){
     }else{
       stop("facets is an empty GenomicRanges object")
     }
-  grl <- grl[elementLengths(grl)>0]
+  grl <- grl[elementNROWS(grl)>0]
   grl
 })
 
 
 setMethod("splitByFacets", c("GRanges", "missing"), function(object, facets){
   res <- split(object, seqnames(object))
-  res <- res[elementLengths(res)>0]
+  res <- res[elementNROWS(res)>0]
   res
 })
 
 setMethod("splitByFacets", c("GRanges", "NULL"), function(object, facets){
   res <- split(object, seqnames(object))
-  res <- res[elementLengths(res)>0]  
+  res <- res[elementNROWS(res)>0]  
   res
 })
 

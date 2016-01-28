@@ -159,8 +159,8 @@ setMethod("crunch", "GAlignments", function(obj, which,
     grg <- grglist(obj)
     grg.u <- stack(grg, ".grl.name")
     message("extracting information...")
-    values(grg.u)$junction <- rep(ifelse(elementLengths(grg)>1, TRUE, FALSE),
-                                  times = elementLengths(grg))
+    values(grg.u)$junction <- rep(ifelse(elementNROWS(grg)>1, TRUE, FALSE),
+                                  times = elementNROWS(grg))
     names(grg.u) <- NULL
     res <- grg.u
     if(truncate.gaps){

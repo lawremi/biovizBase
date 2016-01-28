@@ -102,7 +102,7 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
                              use.names = TRUE)
   ## first leave only junction read
   grl <- grglist(ga)
-  idx <- elementLengths(grl) > 1
+  idx <- elementNROWS(grl) > 1
   ga.junction <- ga[idx]
   gr.junction <- as(ga.junction, "GRanges")
   spliceSummary(gr.junction, model = model, model_id = model_id)
@@ -139,7 +139,7 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
 ##   strandFromXS <- function(pairs) {
 ##     xs <- values(pairs)$XS
 ##     strand <- ifelse(!is.na(xs) & xs != "?", xs, "*")
-##     strand(pairs) <- relist(Rle(strand, elementLengths(pairs)), 
+##     strand(pairs) <- relist(Rle(strand, elementNROWS(pairs)), 
 ##                             pairs)
 ##     pairs
 ##   }
@@ -164,9 +164,9 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
 ##     hit_splices <- ranges(splices)[queryHits(hits)]
 ##     hit_tx <- ranges(tx)[subjectHits(hits)]
 ##     read_within <- 
-##       elementLengths(setdiff(hit_pairs, hit_tx)) == 0L
+##       elementNROWS(setdiff(hit_pairs, hit_tx)) == 0L
 ##     tx_within <- 
-##       elementLengths(intersect(hit_tx, hit_splices)) == 0L
+##       elementNROWS(intersect(hit_tx, hit_splices)) == 0L
 ##     compatible <- read_within & tx_within
 ##     compat_hits <- hits[compatible]
 ##     reads_unique <- tabulate(queryHits(compat_hits), 
@@ -233,7 +233,7 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
 ##   tx_to_val <- match(names(tx), unlist(aldoa_vals$tx_id))
 ##   values(tx)$gene_id <- 
 ##     rep(unlist(aldoa_vals$gene_id), 
-##         elementLengths(aldoa_vals$tx_id))[tx_to_val]
+##         elementNROWS(aldoa_vals$tx_id))[tx_to_val]
 ##   values(tx)$tx_id <- names(tx)
 ## }else if(!missing(which) & is(which, "GRanges")){
 ##     isActiveSeq(txdb)[seqlevels(txdb)] <- FALSE
@@ -270,7 +270,7 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
 ##     ## tx_to_val <- match(names(tx), unlist(aldoa_vals$tx_id))
 ##     ## values(tx)$gene_id <- 
 ##     ##   rep(unlist(aldoa_vals$gene_id), 
-##     ##       elementLengths(aldoa_vals$tx_id))[tx_to_val]
+##     ##       elementNROWS(aldoa_vals$tx_id))[tx_to_val]
 ##     ## values(tx)$tx_id <- names(tx)
 ## }
 

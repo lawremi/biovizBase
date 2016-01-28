@@ -60,6 +60,6 @@ isIdeogram <- function(obj){
 }
 
 isSimpleIdeogram <- function(obj){
-  is(obj, "GRanges") && all(elementLengths(split(obj, as.character(seqnames(obj)))) == 1)
+  is(obj, "GRanges") && all(elementNROWS(split(obj, as.character(seqnames(obj)))) == 1)
 }
 
