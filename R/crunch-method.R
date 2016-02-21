@@ -371,12 +371,12 @@ setMethod("crunch", "EnsDb", function(obj, which,
             ## Subset to one CDS region per tx and split
             codingReg <- codingReg[match(names(codingTx), codingReg$tx_id)]
             codingReg <- split(codingReg, codingReg$tx_id)
-            regUTRs <- unlist(psetdiff(codingTx, codingReg))
+            regUTRs <- unlist(setdiff(codingTx, codingReg))
             mcols(regUTRs) <- mDf[match(names(regUTRs), mDf$tx_id), ]
             regUTRs$type <- "utr"
             message("OK\nDefining CDS...", appendLF=FALSE)
             ## 4) Define CDS
-            regCDSs <- unlist(pintersect(codingTx, codingReg))
+            regCDSs <- unlist(intersect(codingTx, codingReg))
             mcols(regCDSs) <- mDf[match(names(regCDSs), mDf$tx_id), ]
             regCDSs$type <- "cds"
         }else{
