@@ -150,8 +150,9 @@ setMethod("getGaps", "GRanges", function(obj, group.name = NULL, facets = NULL){
             ir <- unlist(gps.sub)
             if(length(ir)){
                 gr <- GRanges(unique(seqnames(dt)), ir)
-                values(gr) <- dfs[togroup(gps.sub),,drop = FALSE]
-                strand(gr) <- stds[togroup(gps.sub)]
+                values(gr) <- dfs[togroup(PartitioningByWidth(gps.sub)),,
+                                  drop = FALSE]
+                strand(gr) <- stds[togroup(PartitioningByWidth(gps.sub))]
             }else{
                 gr <- GRanges()
             }
@@ -253,7 +254,7 @@ subsetArgsByFormals <- function(args, ..., remove.dots = TRUE){
 }
 
 flatGrl <- function(object, indName = "grl_name"){
-    idx <- togroup(object)
+    idx <- togroup(PartitioningByWidth(object))
     gr <- stack(object, indName)
     values(gr) <-   cbind(values(gr), values(object)[idx,,drop = FALSE])
     gr

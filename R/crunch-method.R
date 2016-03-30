@@ -41,7 +41,7 @@ setMethod("crunch", "TxDb", function(obj, which,
         ## system.time(exons <- exonsBy(obj, "tx")) #takes 3.5s
         exons <- exonsByOverlaps(obj, which, columns = c("exon_id", "tx_id")) # 1.6
         txids <- unlist(exons$tx_id)
-        idx <- togroup(exons$tx_id)
+        idx <- togroup(PartitioningByWidth(exons$tx_id))
 
         exons <- exons[idx]
         exons <- exons[,1]
@@ -51,7 +51,7 @@ setMethod("crunch", "TxDb", function(obj, which,
         message("Parsing cds...")
         cdss <- cdsByOverlaps(obj, which, columns = c("exon_id", "tx_id"))
         txids <- unlist(cdss$tx_id)
-        idx <- togroup(cdss$tx_id)
+        idx <- togroup(PartitioningByWidth(cdss$tx_id))
         cdss <- cdss[idx]
         cdss <- cdss[,1]
         cdss$tx_id <- txids
