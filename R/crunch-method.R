@@ -9,7 +9,7 @@ setMethod("crunch", "TxDb", function(obj, which,
     type <- match.arg(type)
     if(is.list(which)){
         message("Parsing exons based on which(list) arguments")
-        temp <- exons(obj, vals = which, columns = columns)
+        temp <- exons(obj, columns = columns, filter = which)
         which <- range(temp)
     }
 

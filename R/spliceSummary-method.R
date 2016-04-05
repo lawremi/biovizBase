@@ -218,8 +218,8 @@ setMethod("spliceSummary", c("character", "GenomicRanges"), function(obj,
 
 ##   message("Parsing gene structure from txdb...")
 ##   if(!missing(id)){
-##   aldoa_gr <- exons(txdb, vals = list(gene_id = id),
-##                     columns = c("tx_id", "gene_id"))
+##   aldoa_gr <- exons(txdb, columns = c("tx_id", "gene_id"),
+##                           filter = list(gene_id = id))
 ##   aldoa_gr <- keepSeqlevels(aldoa_gr, unique(as.character(seqnames(aldoa_gr))))
 ##   ## FIXME later
 ##   nms <- as.character(names(seqlengths(aldoa_gr)))

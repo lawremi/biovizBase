@@ -320,7 +320,7 @@ fetch <- function(obj, which, ..., gene.id,
             stop("type for TxDb must be ", .txdb.type)
         if(is.list(which)){
             message("Parsing exons based on which(list) arguments")
-            temp <- exons(obj, vals = which, columns = columns)
+            temp <- exons(obj, columns = columns, filter = which)
             which <- range(temp)
         }
         ## 1st set all the sequences to be inactive:
