@@ -8,7 +8,7 @@ parseArgsForAes <- function(args){
            }
 
     if (is.null(res))
-        res <- aes()
+        res <- structure(list(), class="uneval")
     
   idx <- ggplot2_is_calculated_aes(res)
   res[idx] <- ggplot2_strip_dots(res[idx])
