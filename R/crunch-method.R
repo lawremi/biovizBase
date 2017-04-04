@@ -271,22 +271,11 @@ setMethod("crunch", "EnsDb", function(obj, which,
                                       truncate.fun = NULL,
                                       ratio = 0.0025){
     type <- match.arg(type)
-    ## which can be a single (!) GRanges an object extending BasicFilter or
-    ## a list of BasicFilter objects.
-    if(is(which, "list")){
-        ## Has to be a list of objects extending BasicFilter.
-        if(!all(vapply(which, is, logical(1L), "BasicFilter"))){
-            stop("Which should be either a GRanges object, an object extending ",
-                 "BasicFilter or a list of objects extending BasicFilter!")
-        }
-        exFilter <- which
-    }else{
-        if(!is(which, "GenomicRanges") & !is(which, "BasicFilter"))
-                stop("Which should be either a GRanges object, an object extending ",
-                     "BasicFilter or a list of objects extending BasicFilter!")
-    }
-    if(is(which, "GenomicRanges")){
-        if(length(which) == 0){
+    ## If which is a GRanges convert that to a GRangesFilter, otherwise just
+    ## pass on the "which" parameter as argument "filter" to the ensembldb
+    ## methods.
+    if(is(which, "GRanges")) {
+        if(length(which) == 0) {
             message("No transcripts found at this region.")
             return(GRanges())
         }
@@ -301,10 +290,8 @@ setMethod("crunch", "EnsDb", function(obj, which,
         ## Check if we've got the seqnames.
         if(!(seqlevels(which) %in% seqlevels(obj)))
             stop(seqlevels(which), " does not match any seqlevel in argument 'obj'!")
-        exFilter <- GRangesFilter(which, condition="overlapping")
-    }
-    if(is(which, "BasicFilter"))
-        exFilter <- which
+        exFilter <- GRangesFilter(which, type = "any")
+    } else exFilter <- which
     ## Check input argument 'columns':
     notAvailable <- !(columns %in% listColumns(obj))
     if(any(notAvailable)){
@@ -317,23 +304,24 @@ setMethod("crunch", "EnsDb", function(obj, which,
         columns <- columns[!notAvailable]
     }
     ## Approach:
-    ## 1) Get all exons in that region and retrieve also the tx_coding_seq_start.
-    ## We're fetching the data just once and calculating everything we need from that,
-    ## i.e. cds, utr and introns.
+    ## 1) Get all exons in that region and retrieve also the
+    ##    tx_coding_seq_start. We're fetching the data just once and
+    ##    calculating everything we need from that, i.e. cds, utr and introns.
     message("Fetching data...", appendLF=FALSE)
     requiredCols <- c("tx_cds_seq_start", "tx_cds_seq_end", "exon_id", "tx_id")
     ## Forcing tx_id on the columns:
     columns <- unique(c(columns, "tx_id"))
-    ## In order to solve also the "overlapping" condition I have first to fetch the transcripts
-    ## in the region and their exons. That way we get, for a GRangesFilter or GRanges all
-    ## transcripts that have an exon or an intron at the specified region.
-    txInRegion <- transcripts(obj, filter=exFilter)
+    ## In order to solve also the "overlapping" condition I have first to fetch
+    ## the transcripts in the region and their exons. That way we get, for a
+    ## GRangesFilter or GRanges all transcripts that have an exon or an intron
+    ## at the specified region.
+    txInRegion <- transcripts(obj, filter = exFilter)
     if(length(txInRegion) == 0){
         message("No transcripts found at this region.")
         return(GRanges())
     }
-    regExons <- exons(obj, filter=TxidFilter(unique(txInRegion$tx_id)),
-                      columns=unique(c(requiredCols, columns)))
+    regExons <- exons(obj, filter = TxIdFilter(unique(txInRegion$tx_id)),
+                      columns = unique(c(requiredCols, columns)))
     ## Simple sanitizing: check if what we got is on the same chromosome!
     if(length(unique(as.character(seqnames(regExons)))) > 1)
         stop("Got features from different chromosomes! Please adjust argument",

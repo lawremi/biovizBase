@@ -62,10 +62,14 @@ importFrom(AnnotationDbi, unlist2, select, mappedRkeys, revmap, toTable)
 ## VariantAnnotation
 importClassesFrom(VariantAnnotation, VRanges)
 
+## AnnotationFilter
+importClassesFrom(AnnotationFilter, AnnotationFilter, GRangesFilter,
+                  TxIdFilter)
+importFrom(AnnotationFilter, AnnotationFilter, GRangesFilter, TxIdFilter,
+           AnnotationFilterList, GenenameFilter)
+
 ## ensembldb
-importClassesFrom(ensembldb, GRangesFilter, BasicFilter, TxidFilter)
 importMethodsFrom(ensembldb, listColumns, exons, transcripts)
-importFrom(ensembldb, GRangesFilter, TxidFilter)
 
 ## ======================================================================
 ##    export

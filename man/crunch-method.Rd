@@ -28,8 +28,11 @@
   \item{which}{
     GRanges object. For TxDb object, could aslo be a list.
     For \code{EnsDb}, it can also be a single filter object
-    extending \code{\link[ensembldb]{BasicFilter-class}} or a
-    \code{list} of such objects.
+    extending \code{\link[AnnotationFilter]{AnnotationFilter-class}}, an
+    \code{\link[AnnotationFilter]{AnnotationFilterList}} combining
+    several such objects or a filter expression in form of a
+    \code{formula} (see \code{\link[AnnotationFilter]{AnnotationFilter}}
+    for examples).
   }
   \item{columns}{
     columns to include in the output.
@@ -69,10 +72,13 @@ library(EnsDb.Hsapiens.v75)
 edb <- EnsDb.Hsapiens.v75
 gr <- genesymbol["BRCA1"]
 seqlevels(gr) <- sub(seqlevels(gr), pattern="chr", replacement="")
-temp <- crunch(edb, which=gr)
+temp <- crunch(edb, which = gr)
 
-## Alternatively, use the GenenameFilter from the ensembldb package:
-temp <- crunch(edb, which=GenenameFilter("BRCA1"))
+## Alternatively, use the GenenameFilter from the AnnotationFilter package:
+temp <- crunch(edb, which = GenenameFilter("BRCA1"))
+
+## Or a filter expression
+temp <- crunch(edb, which = ~ genename == "BRCA1")
 
 }
 \author{Tengfei Yin}
