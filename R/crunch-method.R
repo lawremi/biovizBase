@@ -15,11 +15,11 @@ setMethod("crunch", "TxDb", function(obj, which,
 
     seqnms <- as.character(unique(seqnames(which)))
     if(seqnms %in% seqlevels(obj)){
-        seqlevels(obj, force = TRUE) <- seqnms
+        seqlevels(obj, pruning.mode="coarse") <- seqnms
     }else{
         stop(seqnms, " is not matched with seqlevels of your object, please rename your 'which' arguments ")
     }
-    ## seqlevels(obj, force = TRUE) <- seqnms
+    ## seqlevels(obj, pruning.mode="coarse") <- seqnms
     on.exit(restoreSeqlevels(obj))  # needed only because TxDb are reference
                                     # objects (unlike R objects in general that
                                     # have a copy-on-change semantics)
