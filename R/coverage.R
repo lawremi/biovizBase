@@ -30,7 +30,7 @@ setMethod("estimateCoverage", "BamFile", function(x, maxBinSize = 2^14) {
 
   makeBinRanges <- function() {
     unlist(List(lapply(BINSIZES[BINSIZES <= maxBinSize], function(x) {
-      chunks <- breakInChunks(TOTALSIZE, x)
+      chunks <- breakInChunks(TOTALSIZE, chunksize=x)
       IRanges(start(chunks), end(chunks))
     })))
   }
