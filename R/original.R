@@ -15,13 +15,13 @@ ggplot2_is.constant <- function(x){
 ggplot2_is_calculated_aes <- function(aesthetics){
   match <- "\\.\\.([a-zA-z._]+)\\.\\."
   stats <- rep(FALSE, length(aesthetics))
-  grepl(match, sapply(aesthetics, deparse))
+  grepl(match, sapply(aesthetics, quo_text))
 }
 
 
 ggplot2_strip_dots <- function(aesthetics){
   match <- "\\.\\.([a-zA-z._]+)\\.\\."
-  strings <- lapply(aesthetics, deparse)
+  strings <- lapply(aesthetics, quo_text)
   strings <- lapply(strings, gsub, pattern = match, replacement = "\\1")
   lapply(strings, function(x) parse(text = x)[[1]])
 }

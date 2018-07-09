@@ -24,6 +24,7 @@ importFrom(RColorBrewer, brewer.pal)
 importFrom(scales, dichromat_pal, dscale, expand_range, rescale)
 importFrom(Hmisc, bezier)
 importFrom(dichromat, colorschemes)
+importFrom(rlang, quo_text)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Bioconductor packages

@@ -19,7 +19,7 @@ Imports: grDevices, stats, scales, Hmisc, RColorBrewer,
         SummarizedExperiment, Biostrings (>= 2.33.11), Rsamtools (>= 1.17.28),
         GenomicAlignments (>= 1.1.16), GenomicFeatures (>= 1.21.19),
         AnnotationDbi, VariantAnnotation (>= 1.11.4), ensembldb (>= 1.99.13),
-	AnnotationFilter (>= 0.99.8)
+	AnnotationFilter (>= 0.99.8), rlang
 Suggests: BSgenome.Hsapiens.UCSC.hg19,
         TxDb.Hsapiens.UCSC.hg19.knownGene, BSgenome, rtracklayer,
 	EnsDb.Hsapiens.v75, RUnit
