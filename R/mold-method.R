@@ -175,7 +175,7 @@ setMethod("mold", c("RleList"), function(data){
 
 
 setMethod("mold", "VRanges", function(data){
-  res <- as(data, "data.frame")
+  res <- as.data.frame(data, row.names=NULL)
   res$midpoint <- (res$start + res$end)/2
   res
 })
