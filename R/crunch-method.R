@@ -281,14 +281,14 @@ setMethod("crunch", "EnsDb", function(obj, which,
         }
         if(length(which) > 1)
             stop("'which' has to be a single GRanges object.")
-        if(!is.na(genome(which))){
-            if(unname(genome(which)) != unique(unname(genome(obj))))
+        if(!all(is.na(genome(which)))){
+            if(!all(genome(which) %in% genome(obj)))
                 stop("Genome versions do not fit! Argument 'which' has ",
-                     unname(genome(which)), " argument 'obj' ",
-                     unname(unique(genome(which))), "!")
+                     paste(genome(which), collapse=","), " argument 'obj' ",
+                     paste(genome(obj), collapse=","), "!")
         }
         ## Check if we've got the seqnames.
-        if(!(seqlevels(which) %in% seqlevels(obj)))
+        if(!all(seqlevels(which) %in% seqlevels(obj)))
             stop(seqlevels(which), " does not match any seqlevel in argument 'obj'!")
         exFilter <- GRangesFilter(which, type = "any")
     } else exFilter <- which
