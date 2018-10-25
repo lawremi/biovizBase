@@ -288,8 +288,9 @@ setMethod("crunch", "EnsDb", function(obj, which,
                      paste(genome(obj), collapse=","), "!")
         }
         ## Check if we've got the seqnames.
-        if(!all(seqlevels(which) %in% seqlevels(obj)))
-            stop(seqlevels(which), " does not match any seqlevel in argument 'obj'!")
+        if(!all(seqnames(which) %in% seqlevels(obj)))
+            stop(paste(seqlevels(which), collapse=", "),
+                 " do(es) not match any seqlevel in argument 'obj'!")
         exFilter <- GRangesFilter(which, type = "any")
     } else exFilter <- which
     ## Check input argument 'columns':
