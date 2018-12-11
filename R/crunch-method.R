@@ -362,7 +362,7 @@ setMethod("crunch", "EnsDb", function(obj, which,
             codingReg <- split(codingReg, codingReg$tx_id)
             regUTRs <- unlist(setdiff(codingTx, codingReg))
             mcols(regUTRs) <- mDf[match(names(regUTRs), mDf$tx_id), ]
-            regUTRs$type <- "utr"
+            regUTRs$type <- rep("utr", length(regUTRs))
             message("OK\nDefining CDS...", appendLF=FALSE)
             ## 4) Define CDS
             regCDSs <- unlist(intersect(codingTx, codingReg))
