@@ -56,7 +56,7 @@ getIdeogram <- function(genome,subchr = NULL,cytobands=TRUE){
 }
 
 isIdeogram <- function(obj){
-  is(obj, "GRanges") && (c("gieStain", "name") %in% colnames(values(obj)))
+  is(obj, "GRanges") && all(c("gieStain", "name") %in% colnames(values(obj)))
 }
 
 isSimpleIdeogram <- function(obj){
