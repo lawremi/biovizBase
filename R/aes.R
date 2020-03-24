@@ -3,7 +3,7 @@ parseArgsForAes <- function(args){
                args[["mapping"]]
            } else {
                Find(function(x) {
-                   class(x) == "uneval"
+                   is(x, "uneval")
                }, args)
            }
 
@@ -16,7 +16,6 @@ parseArgsForAes <- function(args){
 }
 
 parseArgsForNonAes <- function(args){
-  lst <- unlist(lapply(args, function(x) class(eval(x, parent.frame())) != "uneval"))
-  args[lst]
+    Filter(function(x) !is(eval(x, parent.frame()), "uneval"), args)
 }
 
