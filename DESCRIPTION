@@ -9,7 +9,7 @@ Description: The biovizBase package is designed to provide a set of
 Authors@R: c(person("Tengfei", "Yin", role=c("aut"),
                  email="yintengfei@gmail.com"),
           person("Michael", "Lawrence", role=c("aut", "ths", "cre"),
-                 email="lawrence.michael@gene.com"),
+                 email="michafla@gene.com"),
           person("Dianne", "Cook", role=c("aut", "ths")),
           person("Johannes", "Rainer", role="ctb"))
 Depends: R (>= 3.5.0), methods
