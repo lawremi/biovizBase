@@ -54,7 +54,7 @@ SEXP scan_bam_bin_offsets(SEXP bytes) {
     Rf_error("'bytes' must be a raw vector");
   Rbyte *b = RAW(bytes);
 
-  if (strncmp(b, "BAI\1", 4))
+  if (strncmp((const char *)b, "BAI\1", 4))
     Rf_error("wrong magic number");
   b += 4;
   
