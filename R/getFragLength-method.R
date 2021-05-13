@@ -6,6 +6,7 @@ setMethod("getFragLength", "character", function(obj, model, which,
     which <- range(reduce(model))
   if(tools::file_ext(obj) == "bam")
     res <- scanBam(obj, param = ScanBamParam(which = which, 
+                          what = c("pos", "rname", "qwidth", "isize", "mpos"),
                           flag = scanBamFlag(isProperPair = TRUE,
                               isFirstMateRead = TRUE)))
 

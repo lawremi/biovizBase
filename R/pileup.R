@@ -45,6 +45,7 @@ pileupAsGRanges <- function(bams, regions,
   }
   gr <- do.call(c, applyPileups(pileupFiles, pileupFun,
                                 param = applyPileupsParam))
+  seqlevels(gr) <- seqlevels(regions)
   seqinfo(gr) <- seqinfo(regions)
   gr
 }
