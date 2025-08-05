@@ -159,7 +159,6 @@ setMethod("mold", c("Rle"), function(data){
 })
 
 setMethod("mold", c("RleList"), function(data){
-  data <- xRleList
   nms <- names(data)
   if(is.null(nms))
     nms <- seq_len(length(data))
